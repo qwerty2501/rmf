@@ -1,0 +1,6 @@
+[package]
+name = "rmf"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]

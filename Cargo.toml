@@ -1,6 +1,9 @@
-[package]
-name = "rmf"
-version = "0.1.0"
-edition = "2024"
+[workspace]
 
-[dependencies]
+members = ["packages/rmf"]
+
+
+[workspace.package]
+version = "0.1.0"
+authors = ["qwerty2501"]
+edition = "2024"
