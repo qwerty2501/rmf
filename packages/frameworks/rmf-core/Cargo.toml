@@ -1,0 +1,10 @@
+[package]
+name = "rmf-core"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+
+
+[dev-dependencies]
+rstest.workspace = true
+pretty_assertions.workspace = true

@@ -1,0 +1,35 @@
+name: test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  cargo-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: cargo test
+        run: cargo test --verbose
+      - name: cargo lint
+        run: cargo lint
+      - name: cargo build
+        run: cargo build --release --verbose
+
+  cspell:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - uses: streetsidesoftware/cspell-action@v8

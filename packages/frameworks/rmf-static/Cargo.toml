@@ -1,0 +1,13 @@
+[package]
+name = "rmf-static"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+
+[dependencies]
+rmf-core = { path = "../rmf-core" }
+rmf-macros = { path = "../rmf-macros" }
+
+[dev-dependencies]
+rstest.workspace = true
+pretty_assertions.workspace = true

@@ -1,0 +1,23 @@
+[workspace]
+
+members = [
+  "packages/frameworks/rmf",
+  "packages/frameworks/rmf-core",
+  "packages/frameworks/rmf-macros",
+  "packages/frameworks/rmf-static",
+]
+resolver = "3"
+
+
+[workspace.package]
+version = "0.1.0"
+authors = ["qwerty2501"]
+edition = "2024"
+
+
+[workspace.dependencies]
+syn = { version = "2.0.111", features = ["full", "parsing"] }
+rstest = "0.26.1"
+pretty_assertions = "1.4.1"
+quote = "1.0.42"
+proc-macro2 = "1.0.103"
