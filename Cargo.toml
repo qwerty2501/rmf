@@ -1,6 +1,7 @@
 [workspace]
 
 members = ["packages/rmf"]
+resolver = "3"
 
 
 [workspace.package]
