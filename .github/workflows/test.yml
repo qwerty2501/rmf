@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Cache cargo registry
         uses: actions/cache@v4
         with:
@@ -27,3 +27,9 @@ jobs:
       - name: cargo build
         run: cargo build --release --verbose
 
+  cspell:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - uses: streetsidesoftware/cspell-action@v8
