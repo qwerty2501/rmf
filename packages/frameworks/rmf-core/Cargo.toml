@@ -1,5 +1,5 @@
 [package]
-name = "rmf"
+name = "rmf-core"
 version.workspace = true
 edition.workspace = true
 
