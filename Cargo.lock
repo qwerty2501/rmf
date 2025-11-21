@@ -3,5 +3,5 @@
 version = 4
 
 [[package]]
-name = "rmf-core"
+name = "rmf"
 version = "0.1.0"

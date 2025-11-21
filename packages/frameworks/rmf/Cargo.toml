@@ -1,6 +1,7 @@
 [package]
-name = "rmf-core"
+name = "rmf"
 version.workspace = true
 edition.workspace = true
+authors.workspace = true
 
 [dependencies]
