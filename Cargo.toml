@@ -1,6 +1,6 @@
 [workspace]
 
-members = ["packages/frameworks/rmf"]
+members = ["packages/frameworks/rmf-core"]
 resolver = "3"
 
 
