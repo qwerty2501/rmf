@@ -4,4 +4,6 @@ version.workspace = true
 edition.workspace = true
 authors.workspace = true
 
-[dependencies]
+[dev-dependencies]
+rstest.workspace = true
+pretty_assertions.workspace = true

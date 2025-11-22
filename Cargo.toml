@@ -8,3 +8,8 @@ resolver = "3"
 version = "0.1.0"
 authors = ["qwerty2501"]
 edition = "2024"
+
+
+[workspace.dependencies]
+rstest = "0.26.1"
+pretty_assertions = "1.4.1"
