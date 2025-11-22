@@ -1,9 +1,11 @@
 [package]
-name = "rmf-core"
+name = "rmf-static"
 version.workspace = true
-edition.workspace = true
 authors.workspace = true
+edition.workspace = true
 
+[dependencies]
+rmf-core = { path = "../rmf-core" }
 
 [dev-dependencies]
 rstest.workspace = true

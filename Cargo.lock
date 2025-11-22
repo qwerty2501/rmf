@@ -193,6 +193,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "rmf-static"
+version = "0.1.0"
+dependencies = [
+ "pretty_assertions",
+ "rmf-core",
+ "rstest",
+]
+
+[[package]]
 name = "rstest"
 version = "0.26.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
