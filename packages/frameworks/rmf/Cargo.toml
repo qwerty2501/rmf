@@ -1,0 +1,13 @@
+[package]
+name = "rmf"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+
+[features]
+static_link = ["dep:rmf-static"]
+default = ["static_link"]
+
+[dependencies]
+rmf-core = { path = "../rmf-core" }
+rmf-static = { path = "../rmf-static", optional = true }
