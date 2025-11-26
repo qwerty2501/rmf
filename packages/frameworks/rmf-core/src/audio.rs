@@ -1,10 +1,10 @@
 pub trait Audio: Clone {
-    type U8Data: AudioData<u8>;
-    type I16Data: AudioData<i16>;
-    type I32Data: AudioData<i32>;
-    type I64Data: AudioData<i64>;
-    type F32Data: AudioData<f32>;
-    type F64Data: AudioData<f64>;
+    type U8Data: AudioData<Item = u8>;
+    type I16Data: AudioData<Item = i16>;
+    type I32Data: AudioData<Item = i32>;
+    type I64Data: AudioData<Item = i64>;
+    type F32Data: AudioData<Item = f32>;
+    type F64Data: AudioData<Item = f64>;
 
     #[inline]
     fn format(&self) -> AudioFormat {
@@ -58,12 +58,12 @@ pub enum AudioFormat {
 
 #[derive(Clone)]
 pub enum AudioDataContext<
-    U8B: AudioData<u8>,
-    I16B: AudioData<i16>,
-    I32B: AudioData<i32>,
-    I64B: AudioData<i64>,
-    F32B: AudioData<f32>,
-    F64B: AudioData<f64>,
+    U8B: AudioData<Item = u8>,
+    I16B: AudioData<Item = i16>,
+    I32B: AudioData<Item = i32>,
+    I64B: AudioData<Item = i64>,
+    F32B: AudioData<Item = f32>,
+    F64B: AudioData<Item = f64>,
 > {
     None,
     U8(U8B),
@@ -74,7 +74,8 @@ pub enum AudioDataContext<
     F64(F64B),
 }
 
-pub trait AudioData<T>: Clone {
-    fn get_channel_line(&self, index: usize) -> Option<&[T]>;
+pub trait AudioData: Clone {
+    type Item;
+    fn get_channel_line(&self, index: usize) -> Option<&[Self::Item]>;
     fn channels_len(&self) -> usize;
 }

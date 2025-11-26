@@ -59,7 +59,8 @@ impl<T: Clone> AudioData<T> {
 }
 
 #[delegate_implements]
-impl<T: Clone> rmf_core::audio::AudioData<T> for AudioData<T> {
+impl<T: Clone> rmf_core::audio::AudioData for AudioData<T> {
+    type Item = T;
     fn channels_len(&self) -> usize {
         self.data.len()
     }
