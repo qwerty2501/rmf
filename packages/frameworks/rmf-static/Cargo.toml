@@ -3,6 +3,7 @@ name = "rmf-static"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
+license-file.workspace = true
 
 [features]
 default = ["use_ffmpeg", "link_system_ffmpeg", "opencv_image"]

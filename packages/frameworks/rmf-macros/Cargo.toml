@@ -3,6 +3,7 @@ name = "rmf-macros"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
+license-file.workspace = true
 
 [lib]
 proc-macro = true

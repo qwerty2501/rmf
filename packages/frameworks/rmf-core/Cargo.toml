@@ -3,6 +3,7 @@ name = "rmf-core"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
+license-file.workspace = true
 
 
 [dev-dependencies]
