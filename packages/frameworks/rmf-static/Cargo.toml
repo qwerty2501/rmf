@@ -4,9 +4,20 @@ version.workspace = true
 authors.workspace = true
 edition.workspace = true
 
+[features]
+default = ["use_ffmpeg", "link_system_ffmpeg", "opencv_image"]
+use_ffmpeg = ["dep:rsmpeg", "dep:rusty_ffmpeg"]
+link_system_ffmpeg = ["rusty_ffmpeg/link_system_ffmpeg"]
+opencv_image = ["use_opencv"]
+use_opencv = ["dep:opencv"]
+
 [dependencies]
+derive-new.workspace = true
+opencv = { version = "0.97.2", optional = true, features = ["clang-runtime"] }
 rmf-core = { path = "../rmf-core" }
 rmf-macros = { path = "../rmf-macros" }
+rsmpeg = { version = "0.18.0", optional = true }
+rusty_ffmpeg = { version = "0.16.7", optional = true }
 
 [dev-dependencies]
 rstest.workspace = true

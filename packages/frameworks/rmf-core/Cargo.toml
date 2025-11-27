@@ -8,3 +8,7 @@ authors.workspace = true
 [dev-dependencies]
 rstest.workspace = true
 pretty_assertions.workspace = true
+
+[dependencies]
+derive-new.workspace = true
+thiserror.workspace = true
