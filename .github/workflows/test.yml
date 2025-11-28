@@ -10,7 +10,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-      - run: sudo apt update && sudo apt install libavcodec-dev && sudo apt install libavdevice-dbv
+      - run: sudo apt update && sudo apt install libavcodec-dev libavdevice-dev
       - name: Cache cargo registry
         uses: actions/cache@v4
         with:
