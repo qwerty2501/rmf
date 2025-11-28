@@ -6,3 +6,4 @@ opencv
 thiserror
 libavcodec
 libavdevice
+libavdevice
