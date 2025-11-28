@@ -5,3 +5,4 @@ rsmpeg
 opencv
 thiserror
 libavcodec
+libavdevice
