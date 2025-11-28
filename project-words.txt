@@ -4,3 +4,4 @@ repr
 rsmpeg
 opencv
 thiserror
+libavcodec
