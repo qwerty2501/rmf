@@ -21,11 +21,11 @@ jobs:
             target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
       - name: cargo test
-        run: cargo test --features default_static_dependencies --verbose
+        run: cargo test --features default_link_static_dependencies --verbose
       - name: cargo lint
         run: cargo lint
       - name: cargo build
-        run: cargo build --features default_static_dependencies --release --verbose
+        run: cargo build --features default_link_static_dependencies --release --verbose
 
   cspell:
     runs-on: ubuntu-latest

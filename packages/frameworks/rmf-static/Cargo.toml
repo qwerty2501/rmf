@@ -6,9 +6,9 @@ edition.workspace = true
 license-file.workspace = true
 
 [features]
-default = ["default_dynamic_dependencies"]
-default_static_dependencies = ["use_ffmpeg", "opencv_image"]
-default_dynamic_dependencies = [
+default = ["default_link_system_dependencies"]
+default_link_static_dependencies = ["use_ffmpeg", "opencv_image"]
+default_link_system_dependencies = [
   "use_ffmpeg",
   "link_system_ffmpeg",
   "opencv_image",
