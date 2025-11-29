@@ -19,3 +19,5 @@ libfdk
 ffmpeg
 libopus
 libclang
+rustup
+clippy
