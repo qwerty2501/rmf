@@ -4,5 +4,7 @@ use derive_new::new;
 pub enum Error {
     #[error("image error {0}")]
     Image(Box<dyn std::error::Error>),
+    #[error("audio error {0}")]
+    Audio(Box<dyn std::error::Error>),
 }
 pub type Result<T> = std::result::Result<T, Error>;

@@ -1,0 +1,176 @@
+use std::marker::PhantomData;
+
+use anyhow::anyhow;
+use rmf_core::{Error, Result};
+use rmf_macros::delegate_implements;
+use rsmpeg::ffi::{
+    AV_SAMPLE_FMT_DBL, AV_SAMPLE_FMT_DBLP, AV_SAMPLE_FMT_FLT, AV_SAMPLE_FMT_FLTP,
+    AV_SAMPLE_FMT_S16, AV_SAMPLE_FMT_S16P, AV_SAMPLE_FMT_S32, AV_SAMPLE_FMT_S32P,
+    AV_SAMPLE_FMT_S64, AV_SAMPLE_FMT_S64P, AV_SAMPLE_FMT_U8P,
+};
+use rsmpeg::{
+    avutil::AVFrame,
+    ffi::{AV_SAMPLE_FMT_NONE, AV_SAMPLE_FMT_U8},
+};
+
+use crate::audio::utils;
+#[derive(Clone)]
+pub struct Audio {
+    data_context: AudioDataContext,
+}
+
+#[delegate_implements]
+impl rmf_core::audio::Audio for Audio {
+    type U8Data = AudioData<u8>;
+    type I16Data = AudioData<i16>;
+    type I32Data = AudioData<i32>;
+    type I64Data = AudioData<i64>;
+    type F32Data = AudioData<f32>;
+    type F64Data = AudioData<f64>;
+
+    #[inline]
+    fn data<'a>(&'a self) -> AudioDataContextRef<'a> {
+        match &self.data_context {
+            AudioDataContext::None => AudioDataContextRef::None,
+            AudioDataContext::U8(data) => AudioDataContextRef::U8(data),
+            AudioDataContext::I16(data) => AudioDataContextRef::I16(data),
+            AudioDataContext::I32(data) => AudioDataContextRef::I32(data),
+            AudioDataContext::I64(data) => AudioDataContextRef::I64(data),
+            AudioDataContext::F32(data) => AudioDataContextRef::F32(data),
+            AudioDataContext::F64(data) => AudioDataContextRef::F64(data),
+        }
+    }
+
+    #[inline]
+    fn calculate_frame_samples(fps: f32, sample_rate: u32, position: isize) -> isize {
+        utils::calculate_frame_samples(fps, sample_rate, position)
+    }
+    #[inline]
+    fn calculate_samples_to_position(fps: f32, sample_rate: u32, position: isize) -> isize {
+        utils::calculate_samples_to_position(fps, sample_rate, position)
+    }
+}
+
+pub type AudioDataContext = rmf_core::audio::AudioDataContext<
+    AudioData<u8>,
+    AudioData<i16>,
+    AudioData<i32>,
+    AudioData<i64>,
+    AudioData<f32>,
+    AudioData<f64>,
+>;
+
+pub struct AudioDataContextBuilder;
+
+impl AudioDataContextBuilder {
+    pub fn try_new(av_frame: AVFrame) -> Result<AudioDataContext> {
+        match av_frame.format {
+            AV_SAMPLE_FMT_NONE => Ok(AudioDataContext::None),
+            AV_SAMPLE_FMT_U8 | AV_SAMPLE_FMT_U8P => {
+                Ok(AudioDataContext::U8(AudioData::<u8>::new(av_frame)))
+            }
+            AV_SAMPLE_FMT_S16 | AV_SAMPLE_FMT_S16P => {
+                Ok(AudioDataContext::I16(AudioData::<i16>::new(av_frame)))
+            }
+            AV_SAMPLE_FMT_S32 | AV_SAMPLE_FMT_S32P => {
+                Ok(AudioDataContext::I32(AudioData::<i32>::new(av_frame)))
+            }
+            AV_SAMPLE_FMT_S64 | AV_SAMPLE_FMT_S64P => {
+                Ok(AudioDataContext::I64(AudioData::<i64>::new(av_frame)))
+            }
+            AV_SAMPLE_FMT_FLT | AV_SAMPLE_FMT_FLTP => {
+                Ok(AudioDataContext::F32(AudioData::<f32>::new(av_frame)))
+            }
+            AV_SAMPLE_FMT_DBL | AV_SAMPLE_FMT_DBLP => {
+                Ok(AudioDataContext::F64(AudioData::<f64>::new(av_frame)))
+            }
+            _ => Err(Error::new_audio(anyhow!("Can't convert av frame").into())),
+        }
+    }
+}
+
+pub type AudioDataContextRef<'a> = rmf_core::audio::AudioDataContext<
+    &'a AudioData<u8>,
+    &'a AudioData<i16>,
+    &'a AudioData<i32>,
+    &'a AudioData<i64>,
+    &'a AudioData<f32>,
+    &'a AudioData<f64>,
+>;
+
+#[derive(Clone)]
+pub struct AudioData<T: Clone> {
+    audio_av_frame: AVFrame,
+    _phantom: PhantomData<T>,
+}
+
+impl<T: Clone> AudioData<T> {
+    pub fn new(audio_av_frame: AVFrame) -> Self {
+        Self {
+            audio_av_frame,
+            _phantom: PhantomData::<T>,
+        }
+    }
+}
+
+#[delegate_implements]
+impl<T: Clone> rmf_core::audio::AudioData for AudioData<T> {
+    type Item = T;
+    fn channels_len(&self) -> usize {
+        self.audio_av_frame.ch_layout().nb_channels as usize
+    }
+    fn get_channel_line(&self, index: usize) -> Option<&[T]> {
+        if index < self.channels_len() {
+            Some(unsafe {
+                let ptr = self.audio_av_frame.extended_data.add(index).read();
+                std::slice::from_raw_parts(
+                    ptr as *const T,
+                    self.audio_av_frame.linesize[0] as usize / size_of::<T>(),
+                )
+            })
+        } else {
+            None
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use pretty_assertions::assert_eq;
+    use rstest::rstest;
+
+    #[rstest]
+    #[case(0.0, 0, 0, 0)]
+    fn calculate_frame_samples_works(
+        #[case] fps: f32,
+        #[case] sample_rate: u32,
+        #[case] position: isize,
+        #[case] expected: isize,
+    ) {
+        assert_eq!(
+            expected,
+            Audio::calculate_frame_samples(fps, sample_rate, position)
+        )
+    }
+
+    #[rstest]
+    #[case(0.0, 0, 0, 0)]
+    #[case(0.0, 30, 22, 0)]
+    #[case(0.0, 100, 121, 0)]
+    #[case(0.0, 786432, 121, 0)]
+    #[case(0.0, 786432, -332, 0)]
+    #[case(30.0, 786432, 121, 3171942)]
+    #[case(30.0, 786432, -121, -3171942)]
+    fn calculate_samples_to_position_works(
+        #[case] fps: f32,
+        #[case] sample_rate: u32,
+        #[case] position: isize,
+        #[case] expected: isize,
+    ) {
+        assert_eq!(
+            expected,
+            Audio::calculate_samples_to_position(fps, sample_rate, position)
+        )
+    }
+}

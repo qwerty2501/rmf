@@ -22,25 +22,14 @@ pub trait Audio: Clone {
     #[allow(clippy::type_complexity)]
     fn data(
         &self,
-    ) -> &AudioDataContext<
-        Self::U8Data,
-        Self::I16Data,
-        Self::I32Data,
-        Self::I64Data,
-        Self::F32Data,
-        Self::F64Data,
+    ) -> AudioDataContext<
+        &Self::U8Data,
+        &Self::I16Data,
+        &Self::I32Data,
+        &Self::I64Data,
+        &Self::F32Data,
+        &Self::F64Data,
     >;
-    #[allow(clippy::type_complexity)]
-    fn new(
-        data_context: AudioDataContext<
-            Self::U8Data,
-            Self::I16Data,
-            Self::I32Data,
-            Self::I64Data,
-            Self::F32Data,
-            Self::F64Data,
-        >,
-    ) -> Self;
     fn calculate_frame_samples(fps: f32, sample_rate: u32, position: isize) -> isize;
     fn calculate_samples_to_position(fps: f32, sample_rate: u32, position: isize) -> isize;
 }
@@ -57,14 +46,7 @@ pub enum AudioFormat {
 }
 
 #[derive(Clone)]
-pub enum AudioDataContext<
-    U8B: AudioData<Item = u8>,
-    I16B: AudioData<Item = i16>,
-    I32B: AudioData<Item = i32>,
-    I64B: AudioData<Item = i64>,
-    F32B: AudioData<Item = f32>,
-    F64B: AudioData<Item = f64>,
-> {
+pub enum AudioDataContext<U8B, I16B, I32B, I64B, F32B, F64B> {
     None,
     U8(U8B),
     I16(I16B),

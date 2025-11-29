@@ -1,4 +1,6 @@
-mod general;
+#[cfg(feature = "use_ffmpeg")]
+pub mod ffmpeg;
 mod utils;
 
-pub use general::*;
+#[cfg(feature = "ffmpeg_audio_as_default")]
+pub use ffmpeg::*;
