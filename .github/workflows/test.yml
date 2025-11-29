@@ -6,6 +6,9 @@ on:
 
 jobs:
   cargo-test:
+    strategy:
+      matrix:
+        feature: ["default","rmf-static/default_link_static_dependencies"]
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/qwerty2501/rmf/ci_test:latest
@@ -23,11 +26,11 @@ jobs:
             target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
       - name: cargo test
-        run: cargo test --features default_link_static_dependencies --verbose
+        run: cargo test --features ${{ matrix.features }} --verbose
       - name: cargo lint
         run: cargo lint
       - name: cargo build
-        run: cargo build --features default_link_static_dependencies --release --verbose
+        run: cargo build --features ${{ matrix.features }} --release --verbose
 
   cspell:
     runs-on: ubuntu-latest
