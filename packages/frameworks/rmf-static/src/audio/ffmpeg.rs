@@ -13,7 +13,6 @@ use rsmpeg::{
     ffi::{AV_SAMPLE_FMT_NONE, AV_SAMPLE_FMT_U8},
 };
 
-use crate::audio::utils;
 #[derive(Clone)]
 pub struct Audio {
     data_context: AudioDataContext,
@@ -39,15 +38,6 @@ impl rmf_core::audio::Audio for Audio {
             AudioDataContext::F32(data) => AudioDataContextRef::F32(data),
             AudioDataContext::F64(data) => AudioDataContextRef::F64(data),
         }
-    }
-
-    #[inline]
-    fn calculate_frame_samples(fps: f32, sample_rate: u32, position: isize) -> isize {
-        utils::calculate_frame_samples(fps, sample_rate, position)
-    }
-    #[inline]
-    fn calculate_samples_to_position(fps: f32, sample_rate: u32, position: isize) -> isize {
-        utils::calculate_samples_to_position(fps, sample_rate, position)
     }
 }
 
@@ -131,46 +121,5 @@ impl<T: Clone> rmf_core::audio::AudioData for AudioData<T> {
         } else {
             None
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use pretty_assertions::assert_eq;
-    use rstest::rstest;
-
-    #[rstest]
-    #[case(0.0, 0, 0, 0)]
-    fn calculate_frame_samples_works(
-        #[case] fps: f32,
-        #[case] sample_rate: u32,
-        #[case] position: isize,
-        #[case] expected: isize,
-    ) {
-        assert_eq!(
-            expected,
-            Audio::calculate_frame_samples(fps, sample_rate, position)
-        )
-    }
-
-    #[rstest]
-    #[case(0.0, 0, 0, 0)]
-    #[case(0.0, 30, 22, 0)]
-    #[case(0.0, 100, 121, 0)]
-    #[case(0.0, 786432, 121, 0)]
-    #[case(0.0, 786432, -332, 0)]
-    #[case(30.0, 786432, 121, 3171942)]
-    #[case(30.0, 786432, -121, -3171942)]
-    fn calculate_samples_to_position_works(
-        #[case] fps: f32,
-        #[case] sample_rate: u32,
-        #[case] position: isize,
-        #[case] expected: isize,
-    ) {
-        assert_eq!(
-            expected,
-            Audio::calculate_samples_to_position(fps, sample_rate, position)
-        )
     }
 }

@@ -30,8 +30,6 @@ pub trait Audio: Clone {
         &Self::F32Data,
         &Self::F64Data,
     >;
-    fn calculate_frame_samples(fps: f32, sample_rate: u32, position: isize) -> isize;
-    fn calculate_samples_to_position(fps: f32, sample_rate: u32, position: isize) -> isize;
 }
 
 #[repr(C)]
