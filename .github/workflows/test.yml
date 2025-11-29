@@ -7,6 +7,8 @@ on:
 jobs:
   cargo-test:
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/qwerty2501/rmf/ci_test:latest
     steps:
       - name: Checkout
         uses: actions/checkout@v5
