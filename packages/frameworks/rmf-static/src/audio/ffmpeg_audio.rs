@@ -28,16 +28,8 @@ impl rmf_core::audio::Audio for Audio {
     type F64Data = AudioData<f64>;
 
     #[inline]
-    fn data<'a>(&'a self) -> AudioDataContextRef<'a> {
-        match &self.data_context {
-            AudioDataContext::None => AudioDataContextRef::None,
-            AudioDataContext::U8(data) => AudioDataContextRef::U8(data),
-            AudioDataContext::I16(data) => AudioDataContextRef::I16(data),
-            AudioDataContext::I32(data) => AudioDataContextRef::I32(data),
-            AudioDataContext::I64(data) => AudioDataContextRef::I64(data),
-            AudioDataContext::F32(data) => AudioDataContextRef::F32(data),
-            AudioDataContext::F64(data) => AudioDataContextRef::F64(data),
-        }
+    fn data(&self) -> &AudioDataContext {
+        &self.data_context
     }
 }
 
@@ -78,15 +70,6 @@ impl AudioDataContextBuilder {
         }
     }
 }
-
-pub type AudioDataContextRef<'a> = rmf_core::audio::AudioDataContext<
-    &'a AudioData<u8>,
-    &'a AudioData<i16>,
-    &'a AudioData<i32>,
-    &'a AudioData<i64>,
-    &'a AudioData<f32>,
-    &'a AudioData<f64>,
->;
 
 #[derive(Clone)]
 pub struct AudioData<T: Clone> {

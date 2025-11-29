@@ -22,13 +22,13 @@ pub trait Audio: Clone {
     #[allow(clippy::type_complexity)]
     fn data(
         &self,
-    ) -> AudioDataContext<
-        &Self::U8Data,
-        &Self::I16Data,
-        &Self::I32Data,
-        &Self::I64Data,
-        &Self::F32Data,
-        &Self::F64Data,
+    ) -> &AudioDataContext<
+        Self::U8Data,
+        Self::I16Data,
+        Self::I32Data,
+        Self::I64Data,
+        Self::F32Data,
+        Self::F64Data,
     >;
 }
 
