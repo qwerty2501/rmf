@@ -7,3 +7,14 @@ thiserror
 libavcodec
 libavdevice
 libopencv
+libass
+libfdk
+libfreetype
+libmp3lame
+libopus
+libvorbis
+libvpx
+nasm
+libfdk
+ffmpeg
+libopus
