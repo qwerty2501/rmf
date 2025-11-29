@@ -9,9 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/qwerty2501/rmf/ci_test:latest
-      credentials:
-        username: ${{ github.actor }}
-        password: ${{ secrets.github_token }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
