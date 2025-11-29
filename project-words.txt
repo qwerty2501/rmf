@@ -18,3 +18,4 @@ nasm
 libfdk
 ffmpeg
 libopus
+libclang
