@@ -78,7 +78,7 @@ pub struct AudioData<T: Clone> {
 }
 
 impl<T: Clone> AudioData<T> {
-    pub fn new(audio_av_frame: AVFrame) -> Self {
+    pub(crate) fn new(audio_av_frame: AVFrame) -> Self {
         Self {
             audio_av_frame,
             _phantom: PhantomData::<T>,
