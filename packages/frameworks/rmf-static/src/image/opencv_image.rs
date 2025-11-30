@@ -12,14 +12,21 @@ pub struct Image {
 #[delegate_implements]
 impl rmf_core::image::Image for Image {
     fn size(&self) -> Size {
-        let s = self.mat.size().unwrap();
-        Size {
-            height: s.height as usize,
-            width: s.width as usize,
+        if let Ok(s) = self.mat.size() {
+            Size {
+                height: s.height as usize,
+                width: s.width as usize,
+            }
+        } else {
+            Size::default()
         }
     }
     fn data_bytes(&self) -> &[u8] {
-        self.mat.data_bytes().unwrap()
+        if let Ok(data) = self.mat.data_bytes() {
+            data
+        } else {
+            &[]
+        }
     }
     fn new_size(size: Size, data: &[u8]) -> Result<Self> {
         let mat = unsafe {
