@@ -14,8 +14,8 @@ impl rmf_core::image::Image for Image {
     fn size(&self) -> Size {
         if let Ok(s) = self.mat.size() {
             Size {
-                height: s.height as usize,
-                width: s.width as usize,
+                height: s.height as _,
+                width: s.width as _,
             }
         } else {
             Size::default()
