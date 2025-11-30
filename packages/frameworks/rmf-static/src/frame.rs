@@ -4,7 +4,7 @@ use crate::{audio::Audio, image::Image};
 
 pub struct Frame {
     image: Option<Image>,
-    audio: Option<Audio>,
+    audio: Vec<Audio>,
 }
 
 #[delegate_implements]
@@ -14,7 +14,7 @@ impl rmf_core::Frame for Frame {
     fn image(&self) -> Option<&Image> {
         self.image.as_ref()
     }
-    fn audio(&self) -> Option<&Audio> {
+    fn audio(&self) -> &[Audio] {
         self.audio.as_ref()
     }
 }
