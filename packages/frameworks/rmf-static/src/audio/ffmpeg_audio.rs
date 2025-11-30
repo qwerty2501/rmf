@@ -90,7 +90,7 @@ impl<T: Clone> AudioData<T> {
 impl<T: Clone> rmf_core::audio::AudioData for AudioData<T> {
     type Item = T;
     fn channels_len(&self) -> usize {
-        self.audio_av_frame.ch_layout().nb_channels as usize
+        self.audio_av_frame.ch_layout().nb_channels as _
     }
     fn get_channel_line(&self, index: usize) -> Option<&[T]> {
         if index < self.channels_len() {
