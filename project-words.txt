@@ -25,3 +25,6 @@ avutil
 linesize
 FLTP
 DBLP
+avformat
+AVIO
+AVSEEK
