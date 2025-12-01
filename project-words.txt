@@ -28,3 +28,7 @@ DBLP
 avformat
 AVIO
 AVSEEK
+AVMEDIA
+avcodec
+Deque
+avframe

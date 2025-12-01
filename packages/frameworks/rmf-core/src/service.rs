@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use derive_new::new;
 
-use crate::Result;
+use crate::{ContentCursor, Result};
 
 pub trait Service {}
 
@@ -11,7 +11,10 @@ pub enum InputSource {
     Path(PathBuf),
 }
 
-pub trait InputService: Service {}
+pub trait InputService: Service {
+    type ImageContentCursor: ContentCursor;
+    fn image_cursor(&self) -> Self::ImageContentCursor;
+}
 
 impl<T: InputService> Service for T {}
 
