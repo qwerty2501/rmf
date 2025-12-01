@@ -17,7 +17,7 @@ impl<T: InputService> Service for T {}
 
 pub trait InputServiceProvider {
     type InputService: InputService;
-    fn new(source: InputSource) -> Result<Self::InputService>;
+    fn try_new(source: InputSource) -> Result<Self::InputService>;
 }
 
 pub trait OutputService: Service {}

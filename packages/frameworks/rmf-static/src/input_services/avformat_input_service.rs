@@ -22,7 +22,7 @@ impl AVFormatInputService {
 
 impl InputServiceProvider for AVFormatInputService {
     type InputService = Self;
-    fn new(source: InputSource) -> Result<Self> {
+    fn try_new(source: InputSource) -> Result<Self> {
         match source {
             InputSource::Path(path) => Self::try_from_path(path),
         }
