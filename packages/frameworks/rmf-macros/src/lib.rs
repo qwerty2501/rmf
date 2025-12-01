@@ -1,6 +1,8 @@
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{FnArg, ImplItem, ImplItemFn, parse_macro_input, spanned::Spanned};
+use syn::{
+    FnArg, ImplItem, ImplItemFn, Visibility, parse_macro_input, spanned::Spanned, token::Pub,
+};
 
 #[proc_macro_attribute]
 pub fn delegate_implements(_: TokenStream, input: TokenStream) -> TokenStream {
@@ -18,6 +20,17 @@ fn delegate_implements_internal(input: syn::ItemImpl) -> proc_macro2::TokenStrea
             .iter()
             .filter(|item| matches!(item, ImplItem::Fn(_) | ImplItem::Const(_)))
             .cloned()
+            .map(|item| match item {
+                ImplItem::Fn(mut f) => {
+                    f.vis = Visibility::Public(Pub::default());
+                    ImplItem::Fn(f)
+                }
+                ImplItem::Const(mut c) => {
+                    c.vis = Visibility::Public(Pub::default());
+                    ImplItem::Const(c)
+                }
+                _ => panic!("not implemented"),
+            })
             .collect();
 
         let mut trait_impl = input;
