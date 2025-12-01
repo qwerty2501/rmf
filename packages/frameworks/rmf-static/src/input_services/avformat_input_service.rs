@@ -1,4 +1,4 @@
-use std::{cmp::min, ffi::CString, os::unix::ffi::OsStrExt, path::PathBuf, sync::Arc};
+use std::{ffi::CString, os::unix::ffi::OsStrExt, path::PathBuf};
 
 use rmf_core::{Error, InputService, InputServiceProvider, InputSource, Result};
 use rsmpeg::avformat::AVFormatContextInput;
