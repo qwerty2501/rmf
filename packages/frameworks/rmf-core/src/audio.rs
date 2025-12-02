@@ -1,3 +1,5 @@
+use crate::Result;
+
 pub trait Audio: Clone {
     type U8Data: AudioData<Item = u8>;
     type I16Data: AudioData<Item = i16>;
@@ -30,6 +32,28 @@ pub trait Audio: Clone {
         Self::F32Data,
         Self::F64Data,
     >;
+}
+
+pub trait AudioConstructor {
+    type U8Data: AudioData<Item = u8>;
+    type I16Data: AudioData<Item = i16>;
+    type I32Data: AudioData<Item = i32>;
+    type I64Data: AudioData<Item = i64>;
+    type F32Data: AudioData<Item = f32>;
+    type F64Data: AudioData<Item = f64>;
+    type Audio: Audio;
+
+    #[allow(clippy::type_complexity)]
+    fn tyr_new(
+        data_context: AudioDataContext<
+            Self::U8Data,
+            Self::I16Data,
+            Self::I32Data,
+            Self::I64Data,
+            Self::F32Data,
+            Self::F64Data,
+        >,
+    ) -> Result<Self::Audio>;
 }
 
 #[repr(C)]

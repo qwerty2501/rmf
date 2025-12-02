@@ -14,7 +14,7 @@ use rsmpeg::{
     swscale::SwsContext,
 };
 
-use crate::{Audio, Content, Frame, Image};
+use crate::{Audio, AudioDataContextBuilder, Content, Frame, Image};
 
 pub struct AVFormatContentCursor {
     input: AVFormatContextInput,
@@ -122,6 +122,10 @@ impl AVFormatContentCursor {
             data,
         )
     }
+    fn avframe_to_audio(frame: AVFrame) -> Result<Audio> {
+        let data_context = AudioDataContextBuilder::try_new(frame)?;
+        Audio::tyr_new(data_context)
+    }
     fn input_contexts(
         input: &AVFormatContextInput,
         media_type: ffi::AVMediaType,
@@ -185,12 +189,36 @@ impl rmf_core::ContentCursor for AVFormatContentCursor {
                         }
                     }
                 }
-                if let Some(audio_context) = &self.audio_context
+                if let Some(audio_context) = &mut self.audio_context
                     && packet.stream_index == audio_context.index as _
-                {}
+                {
+                    audio_context
+                        .avcodec_context
+                        .send_packet(Some(&packet))
+                        .map_err(|e| Error::new_image(e.into()))?;
+                    loop {
+                        match audio_context.avcodec_context.receive_frame() {
+                            Ok(frame) => {
+                                let audio = Self::avframe_to_audio(frame)?;
+                                self.audio_cache.push_back(audio);
+                            }
+                            Err(err) => {
+                                if err == RsmpegError::DecoderFlushedError
+                                    || err == RsmpegError::DecoderFlushedError
+                                {
+                                    break;
+                                } else {
+                                    Err(Error::new_image(err.into()))?
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
+
+    #[inline]
     fn seek(&mut self, timestamp: i64, flag: Option<ContentSeekFlag>) -> rmf_core::Result<()> {
         self.input
             .seek(

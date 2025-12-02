@@ -33,6 +33,20 @@ impl rmf_core::audio::Audio for Audio {
     }
 }
 
+#[delegate_implements]
+impl rmf_core::audio::AudioConstructor for Audio {
+    type U8Data = AudioData<u8>;
+    type I16Data = AudioData<i16>;
+    type I32Data = AudioData<i32>;
+    type I64Data = AudioData<i64>;
+    type F32Data = AudioData<f32>;
+    type F64Data = AudioData<f64>;
+    type Audio = Self;
+    fn tyr_new(data_context: AudioDataContext) -> Result<Self> {
+        Ok(Self { data_context })
+    }
+}
+
 pub type AudioDataContext = rmf_core::audio::AudioDataContext<
     AudioData<u8>,
     AudioData<i16>,
