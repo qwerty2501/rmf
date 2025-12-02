@@ -1,4 +1,4 @@
-use std::collections::VecDeque;
+use std::{collections::VecDeque, time::Duration};
 
 use anyhow::anyhow;
 use rmf_core::{ContentConstructor, ContentSeekFlag, Error, Result};
@@ -9,7 +9,7 @@ use rsmpeg::{
     error::RsmpegError,
     ffi::{
         self, AV_PIX_FMT_BGR24, AV_TIME_BASE_Q, AVMEDIA_TYPE_AUDIO, AVMEDIA_TYPE_VIDEO,
-        AVPixelFormat, AVSEEK_FLAG_BACKWARD, SWS_BICUBIC, av_image_get_buffer_size,
+        AVPixelFormat, AVRational, AVSEEK_FLAG_BACKWARD, SWS_BICUBIC, av_image_get_buffer_size,
     },
     swscale::SwsContext,
 };
@@ -147,6 +147,10 @@ impl AVFormatContextContentCursor {
     }
 }
 
+fn timestamp_to_duration(ts: i64, time_base: AVRational) -> Duration {
+    Duration::from_micros(av_rescale_q(ts, time_base, AV_TIME_BASE_Q) as _)
+}
+
 impl rmf_core::ContentCursor for AVFormatContextContentCursor {
     type Content = Content<ContextContent>;
     fn read(&mut self) -> Result<Option<Self::Content>> {
@@ -168,9 +172,9 @@ impl rmf_core::ContentCursor for AVFormatContextContentCursor {
                         match video_context.avcodec_context.receive_frame() {
                             Ok(frame) => {
                                 let presentation_timestamp =
-                                    av_rescale_q(frame.pts, frame.time_base, AV_TIME_BASE_Q);
+                                    timestamp_to_duration(frame.pts, frame.time_base);
                                 let duration_timestamp =
-                                    av_rescale_q(frame.duration, frame.time_base, AV_TIME_BASE_Q);
+                                    timestamp_to_duration(frame.duration, frame.time_base);
                                 let image = Self::avframe_to_image(
                                     frame,
                                     &video_context.avcodec_context,
@@ -203,9 +207,9 @@ impl rmf_core::ContentCursor for AVFormatContextContentCursor {
                         match audio_context.avcodec_context.receive_frame() {
                             Ok(frame) => {
                                 let presentation_timestamp =
-                                    av_rescale_q(frame.pts, frame.time_base, AV_TIME_BASE_Q);
+                                    timestamp_to_duration(frame.pts, frame.time_base);
                                 let duration_timestamp =
-                                    av_rescale_q(frame.duration, frame.time_base, AV_TIME_BASE_Q);
+                                    timestamp_to_duration(frame.duration, frame.time_base);
                                 let audio = Self::avframe_to_audio(frame)?;
                                 return Ok(Some(Content::<ContextContent>::new(
                                     ContextContent::new_audio(audio),

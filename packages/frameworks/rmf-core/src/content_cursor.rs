@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use derive_new::new;
 
 use crate::{Result, audio::Audio, image::Image};
@@ -23,13 +25,16 @@ pub trait Content {
     type Item;
     fn item(&self) -> &Self::Item;
     fn item_mut(&mut self) -> &mut Self::Item;
-    fn presentation_timestamp(&self) -> i64;
-    fn duration_timestamp(&self) -> i64;
+    fn presentation_timestamp(&self) -> Duration;
+    fn duration_timestamp(&self) -> Duration;
 }
 
 pub trait ContentConstructor {
     type Item;
     type Content: Content;
-    fn new(item: Self::Item, presentation_timestamp: i64, duration_timestamp: i64)
-    -> Self::Content;
+    fn new(
+        item: Self::Item,
+        presentation_timestamp: Duration,
+        duration_timestamp: Duration,
+    ) -> Self::Content;
 }
