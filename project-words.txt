@@ -32,3 +32,5 @@ AVMEDIA
 avcodec
 Deque
 avframe
+swscale
+Backword
