@@ -1,11 +1,5 @@
-#[cfg(feature = "use_ffmpeg")]
-pub mod avformat_video_content_cursor;
-
-use std::time::Duration;
-
-#[cfg(feature = "use_ffmpeg")]
-pub use avformat_video_content_cursor::*;
 use rmf_macros::delegate_implements;
+use std::time::Duration;
 
 use crate::{Audio, Image};
 

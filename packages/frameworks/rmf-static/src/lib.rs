@@ -1,7 +1,9 @@
 pub mod audio;
 pub mod content;
 pub mod image;
-pub mod input_services;
+
+#[cfg(feature = "use_ffmpeg")]
+pub mod ffmpeg;
 
 pub use audio::*;
 pub use content::*;
