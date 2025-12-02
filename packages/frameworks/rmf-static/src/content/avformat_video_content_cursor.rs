@@ -1,28 +1,26 @@
 use std::collections::VecDeque;
 
 use anyhow::anyhow;
-use rmf_core::{ContentSeekFlag, Error, Result};
+use rmf_core::{ContentConstructor, ContentSeekFlag, Error, Result};
 use rsmpeg::{
     avcodec::{AVCodecContext, AVCodecRef},
     avformat::AVFormatContextInput,
-    avutil::{AVFrame, AVMem},
+    avutil::{AVFrame, AVMem, av_rescale_q},
     error::RsmpegError,
     ffi::{
-        self, AV_PIX_FMT_BGR24, AVMEDIA_TYPE_AUDIO, AVMEDIA_TYPE_VIDEO, AVPixelFormat,
-        AVSEEK_FLAG_BACKWARD, SWS_BICUBIC, av_image_get_buffer_size,
+        self, AV_PIX_FMT_BGR24, AV_TIME_BASE_Q, AVMEDIA_TYPE_AUDIO, AVMEDIA_TYPE_VIDEO,
+        AVPixelFormat, AVSEEK_FLAG_BACKWARD, SWS_BICUBIC, av_image_get_buffer_size,
     },
     swscale::SwsContext,
 };
 
-use crate::{Audio, AudioDataContextBuilder, Content, Frame, Image};
+use crate::{Audio, AudioDataContextBuilder, Content, ContextContent, Image};
 
-pub struct AVFormatContentCursor {
+pub struct AVFormatContextContentCursor {
     input: AVFormatContextInput,
-    video_context: Option<AVFormatContentContexts>,
-    audio_context: Option<AVFormatContentContexts>,
+    video_context: AVFormatContentContexts,
+    audio_context: AVFormatContentContexts,
     image_scale_context: Option<ImageScaleContext>,
-    image_cache: VecDeque<Image>,
-    audio_cache: VecDeque<Audio>,
 }
 
 struct AVFormatContentContexts {
@@ -39,13 +37,13 @@ struct ImageScaleContext {
 
 const DEFAULT_PIX_FMT: AVPixelFormat = AV_PIX_FMT_BGR24;
 
-impl AVFormatContentCursor {
+impl AVFormatContextContentCursor {
     pub fn try_new(input: AVFormatContextInput) -> Result<Self> {
-        let video_context = Self::input_contexts(&input, AVMEDIA_TYPE_VIDEO)?;
-        let audio_context = Self::input_contexts(&input, AVMEDIA_TYPE_AUDIO)?;
-        let image_scale_context = if let Some(video_context) = &video_context
-            && video_context.avcodec_context.pix_fmt != DEFAULT_PIX_FMT
-        {
+        let video_context = Self::input_contexts(&input, AVMEDIA_TYPE_VIDEO)?
+            .ok_or_else(|| Error::new_image(anyhow!("Can not make input context").into()))?;
+        let audio_context = Self::input_contexts(&input, AVMEDIA_TYPE_AUDIO)?
+            .ok_or_else(|| Error::new_audio(anyhow!("Can not make input context").into()))?;
+        let image_scale_context = if video_context.avcodec_context.pix_fmt != DEFAULT_PIX_FMT {
             let sws_context = SwsContext::get_context(
                 video_context.avcodec_context.width,
                 video_context.avcodec_context.height,
@@ -90,10 +88,9 @@ impl AVFormatContentCursor {
             video_context,
             audio_context,
             image_scale_context,
-            image_cache: VecDeque::default(),
-            audio_cache: VecDeque::default(),
         })
     }
+
     fn avframe_to_image(
         frame: AVFrame,
         avcodec_context: &AVCodecContext,
@@ -150,18 +147,18 @@ impl AVFormatContentCursor {
     }
 }
 
-impl rmf_core::ContentCursor for AVFormatContentCursor {
-    type Content = Content<Frame>;
+impl rmf_core::ContentCursor for AVFormatContextContentCursor {
+    type Content = Content<ContextContent>;
     fn read(&mut self) -> Result<Option<Self::Content>> {
+        let video_context = &mut self.video_context;
+        let audio_context = &mut self.audio_context;
         loop {
             if let Some(packet) = self
                 .input
                 .read_packet()
                 .map_err(|e| Error::new_image(e.into()))?
             {
-                if let Some(video_context) = &mut self.video_context
-                    && packet.stream_index == video_context.index as _
-                {
+                if packet.stream_index == video_context.index as _ {
                     video_context
                         .avcodec_context
                         .send_packet(Some(&packet))
@@ -170,12 +167,20 @@ impl rmf_core::ContentCursor for AVFormatContentCursor {
                     loop {
                         match video_context.avcodec_context.receive_frame() {
                             Ok(frame) => {
+                                let presentation_timestamp =
+                                    av_rescale_q(frame.pts, frame.time_base, AV_TIME_BASE_Q);
+                                let duration_timestamp =
+                                    av_rescale_q(frame.duration, frame.time_base, AV_TIME_BASE_Q);
                                 let image = Self::avframe_to_image(
                                     frame,
                                     &video_context.avcodec_context,
                                     &mut self.image_scale_context,
                                 )?;
-                                self.image_cache.push_back(image);
+                                return Ok(Some(Content::<ContextContent>::new(
+                                    ContextContent::new_image(image),
+                                    presentation_timestamp,
+                                    duration_timestamp,
+                                )));
                             }
                             Err(err) => {
                                 if err == RsmpegError::DecoderFlushedError
@@ -189,9 +194,7 @@ impl rmf_core::ContentCursor for AVFormatContentCursor {
                         }
                     }
                 }
-                if let Some(audio_context) = &mut self.audio_context
-                    && packet.stream_index == audio_context.index as _
-                {
+                if packet.stream_index == audio_context.index as _ {
                     audio_context
                         .avcodec_context
                         .send_packet(Some(&packet))
@@ -199,8 +202,16 @@ impl rmf_core::ContentCursor for AVFormatContentCursor {
                     loop {
                         match audio_context.avcodec_context.receive_frame() {
                             Ok(frame) => {
+                                let presentation_timestamp =
+                                    av_rescale_q(frame.pts, frame.time_base, AV_TIME_BASE_Q);
+                                let duration_timestamp =
+                                    av_rescale_q(frame.duration, frame.time_base, AV_TIME_BASE_Q);
                                 let audio = Self::avframe_to_audio(frame)?;
-                                self.audio_cache.push_back(audio);
+                                return Ok(Some(Content::<ContextContent>::new(
+                                    ContextContent::new_audio(audio),
+                                    presentation_timestamp,
+                                    duration_timestamp,
+                                )));
                             }
                             Err(err) => {
                                 if err == RsmpegError::DecoderFlushedError
@@ -214,8 +225,11 @@ impl rmf_core::ContentCursor for AVFormatContentCursor {
                         }
                     }
                 }
+            } else {
+                break;
             }
         }
+        Ok(None)
     }
 
     #[inline]
