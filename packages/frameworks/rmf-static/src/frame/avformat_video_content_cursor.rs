@@ -94,6 +94,34 @@ impl AVFormatContentCursor {
             audio_cache: VecDeque::default(),
         })
     }
+    fn avframe_to_image(
+        frame: AVFrame,
+        avcodec_context: &AVCodecContext,
+        image_scale_context: &mut Option<ImageScaleContext>,
+    ) -> Result<Image> {
+        let avframe = if let Some(image_scale_context) = image_scale_context {
+            image_scale_context
+                .sws_context
+                .scale_frame(
+                    &frame,
+                    0,
+                    avcodec_context.height,
+                    &mut image_scale_context.frame_cache,
+                )
+                .map_err(|e| Error::new_image(e.into()))?;
+            &image_scale_context.frame_cache
+        } else {
+            &frame
+        };
+        let data = unsafe { std::slice::from_raw_parts(avframe.data[0], avframe.linesize[0] as _) };
+        Image::new_size(
+            rmf_core::Size {
+                height: avcodec_context.height as _,
+                width: avcodec_context.width as _,
+            },
+            data,
+        )
+    }
     fn input_contexts(
         input: &AVFormatContextInput,
         media_type: ffi::AVMediaType,
@@ -138,34 +166,10 @@ impl rmf_core::ContentCursor for AVFormatContentCursor {
                     loop {
                         match video_context.avcodec_context.receive_frame() {
                             Ok(frame) => {
-                                let avframe = if let Some(image_scale_context) =
-                                    &mut self.image_scale_context
-                                {
-                                    image_scale_context
-                                        .sws_context
-                                        .scale_frame(
-                                            &frame,
-                                            0,
-                                            video_context.avcodec_context.height,
-                                            &mut image_scale_context.frame_cache,
-                                        )
-                                        .map_err(|e| Error::new_image(e.into()))?;
-                                    &image_scale_context.frame_cache
-                                } else {
-                                    &frame
-                                };
-                                let data = unsafe {
-                                    std::slice::from_raw_parts(
-                                        avframe.data[0],
-                                        avframe.linesize[0] as _,
-                                    )
-                                };
-                                let image = Image::new_size(
-                                    rmf_core::Size {
-                                        height: video_context.avcodec_context.height as _,
-                                        width: video_context.avcodec_context.width as _,
-                                    },
-                                    data,
+                                let image = Self::avframe_to_image(
+                                    frame,
+                                    &video_context.avcodec_context,
+                                    &mut self.image_scale_context,
                                 )?;
                                 self.image_cache.push_back(image);
                             }
