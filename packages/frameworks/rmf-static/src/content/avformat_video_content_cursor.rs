@@ -237,11 +237,11 @@ impl rmf_core::ContentCursor for AVFormatContextContentCursor {
     }
 
     #[inline]
-    fn seek(&mut self, timestamp: i64, flag: Option<ContentSeekFlag>) -> rmf_core::Result<()> {
+    fn seek(&mut self, timestamp: Duration, flag: Option<ContentSeekFlag>) -> rmf_core::Result<()> {
         self.input
             .seek(
                 -1,
-                timestamp,
+                timestamp.as_micros() as _,
                 flag.map(|f| match f {
                     ContentSeekFlag::Backword => AVSEEK_FLAG_BACKWARD,
                 })
