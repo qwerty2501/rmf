@@ -245,7 +245,7 @@ impl rmf_core::ContentCursor for AVFormatContextContentCursor {
         self.input
             .seek(
                 -1,
-                timestamp.as_micro_seconds(),
+                timestamp.micro_seconds(),
                 flag.map(|f| match f {
                     ContentSeekFlag::Backword => AVSEEK_FLAG_BACKWARD,
                 })

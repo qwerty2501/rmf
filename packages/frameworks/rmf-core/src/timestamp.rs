@@ -4,7 +4,7 @@ pub struct Timestamp {
 }
 
 impl Timestamp {
-    pub fn as_micro_seconds(&self) -> i64 {
+    pub fn micro_seconds(&self) -> i64 {
         self.raw_micro_seconds
     }
     pub fn from_micro_seconds(micro_seconds: i64) -> Self {
