@@ -237,20 +237,9 @@ impl rmf_core::ContentCursor for AVFormatContextContentCursor {
     }
 
     #[inline]
-    fn seek(
-        &mut self,
-        timestamp: Timestamp,
-        flag: Option<ContentSeekFlag>,
-    ) -> rmf_core::Result<()> {
+    fn seek(&mut self, timestamp: Timestamp) -> rmf_core::Result<()> {
         self.input
-            .seek(
-                -1,
-                timestamp.micro_seconds(),
-                flag.map(|f| match f {
-                    ContentSeekFlag::Backword => AVSEEK_FLAG_BACKWARD,
-                })
-                .unwrap_or(0) as i32,
-            )
+            .seek(-1, timestamp.micro_seconds(), AVSEEK_FLAG_BACKWARD as _)
             .map_err(|e| Error::new_image(e.into()))
     }
 }

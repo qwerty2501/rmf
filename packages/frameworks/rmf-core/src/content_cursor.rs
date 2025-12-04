@@ -11,12 +11,7 @@ pub enum ContextContent<I: Image, A: Audio> {
 pub trait ContentCursor {
     type Content: Content;
     fn read(&mut self) -> Result<Option<Self::Content>>;
-    fn seek(&mut self, timestamp: Timestamp, flag: Option<ContentSeekFlag>) -> Result<()>;
-}
-
-#[repr(C)]
-pub enum ContentSeekFlag {
-    Backword = 1,
+    fn seek(&mut self, timestamp: Timestamp) -> Result<()>;
 }
 
 pub trait Content {
