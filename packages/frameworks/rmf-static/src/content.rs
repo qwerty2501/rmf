@@ -1,12 +1,12 @@
+use rmf_core::Timestamp;
 use rmf_macros::delegate_implements;
-use std::time::Duration;
 
 use crate::{Audio, Image};
 
 pub struct Content<I> {
     item: I,
-    presentation_timestamp: Duration,
-    duration_timestamp: Duration,
+    presentation_timestamp: Timestamp,
+    duration_timestamp: Timestamp,
 }
 
 pub type ContextContent = rmf_core::ContextContent<Image, Audio>;
@@ -21,10 +21,10 @@ impl<I> rmf_core::Content for Content<I> {
         &mut self.item
     }
 
-    fn presentation_timestamp(&self) -> Duration {
+    fn presentation_timestamp(&self) -> Timestamp {
         self.presentation_timestamp
     }
-    fn duration_timestamp(&self) -> Duration {
+    fn duration_timestamp(&self) -> Timestamp {
         self.duration_timestamp
     }
 }
@@ -33,7 +33,7 @@ impl<I> rmf_core::Content for Content<I> {
 impl<I> rmf_core::ContentConstructor for Content<I> {
     type Item = I;
     type Content = Self;
-    fn new(item: I, presentation_timestamp: Duration, duration_timestamp: Duration) -> Self {
+    fn new(item: I, presentation_timestamp: Timestamp, duration_timestamp: Timestamp) -> Self {
         Self {
             item,
             presentation_timestamp,

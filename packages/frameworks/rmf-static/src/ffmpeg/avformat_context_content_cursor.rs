@@ -1,7 +1,7 @@
 use std::{collections::VecDeque, time::Duration};
 
 use anyhow::anyhow;
-use rmf_core::{ContentConstructor, ContentSeekFlag, Error, Result};
+use rmf_core::{ContentConstructor, ContentSeekFlag, Error, Result, Timestamp};
 use rsmpeg::{
     avcodec::{AVCodecContext, AVCodecRef},
     avformat::AVFormatContextInput,
@@ -147,8 +147,8 @@ impl AVFormatContextContentCursor {
     }
 }
 
-fn timestamp_to_duration(ts: i64, time_base: AVRational) -> Duration {
-    Duration::from_micros(av_rescale_q(ts, time_base, AV_TIME_BASE_Q) as _)
+fn timestamp_to_duration(ts: i64, time_base: AVRational) -> Timestamp {
+    Timestamp::from_micro_seconds(av_rescale_q(ts, time_base, AV_TIME_BASE_Q))
 }
 
 impl rmf_core::ContentCursor for AVFormatContextContentCursor {
@@ -237,11 +237,15 @@ impl rmf_core::ContentCursor for AVFormatContextContentCursor {
     }
 
     #[inline]
-    fn seek(&mut self, timestamp: Duration, flag: Option<ContentSeekFlag>) -> rmf_core::Result<()> {
+    fn seek(
+        &mut self,
+        timestamp: Timestamp,
+        flag: Option<ContentSeekFlag>,
+    ) -> rmf_core::Result<()> {
         self.input
             .seek(
                 -1,
-                timestamp.as_micros() as _,
+                timestamp.as_micro_seconds(),
                 flag.map(|f| match f {
                     ContentSeekFlag::Backword => AVSEEK_FLAG_BACKWARD,
                 })
