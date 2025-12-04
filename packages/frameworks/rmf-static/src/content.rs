@@ -1,15 +1,11 @@
 use rmf_core::Timestamp;
 use rmf_macros::delegate_implements;
 
-use crate::{Audio, Image};
-
 pub struct Content<I> {
     item: I,
     presentation_timestamp: Timestamp,
     duration_timestamp: Timestamp,
 }
-
-pub type ContextContent = rmf_core::ContextContent<Image, Audio>;
 
 #[delegate_implements]
 impl<I> rmf_core::Content for Content<I> {

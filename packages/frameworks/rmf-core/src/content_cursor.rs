@@ -1,12 +1,4 @@
-use derive_new::new;
-
-use crate::{Result, Timestamp, audio::Audio, image::Image};
-
-#[derive(new)]
-pub enum ContextContent<I: Image, A: Audio> {
-    Image(I),
-    Audio(A),
-}
+use crate::{Result, Timestamp};
 
 pub trait ContentCursor {
     type Content: Content;
