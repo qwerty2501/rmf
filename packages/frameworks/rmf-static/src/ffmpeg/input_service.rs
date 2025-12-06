@@ -40,11 +40,9 @@ impl AudioInputService for AVFormatAudioInputService {
     }
 }
 
-#[delegate_implements]
-impl rmf_core::image::ImageInputServiceProvider for AVFormatImageInputService {
-    type Item = Image;
-    fn try_new(source: InputSource) -> Result<Box<dyn ImageInputService<Item = Image>>> {
-        Ok(Box::new(Self { source }))
+impl AVFormatImageInputService {
+    pub fn new(source: InputSource) -> Self {
+        Self { source }
     }
 }
 

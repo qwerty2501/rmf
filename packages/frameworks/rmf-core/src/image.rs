@@ -1,4 +1,4 @@
-use crate::{Content, InnerContent, InputSource, Result, Service, Size, Timestamp};
+use crate::{Content, InnerContent, Result, Service, Size, Timestamp};
 
 pub trait Image: InnerContent + Clone {
     fn new_size(size: Size, data: &[u8]) -> Result<Self>;
@@ -14,9 +14,4 @@ pub trait ImageContentCursor: Service {
 pub trait ImageInputService {
     type Item: Image;
     fn cursor(&self) -> Result<Box<dyn ImageContentCursor<Item = Self::Item>>>;
-}
-
-pub trait ImageInputServiceProvider {
-    type Item: Image;
-    fn try_new(source: InputSource) -> Result<Box<dyn ImageInputService<Item = Self::Item>>>;
 }
