@@ -166,9 +166,9 @@ impl rmf_core::image::ImageContentCursor for AVFormatImageContentCursor {
                         match self.video_context.avcodec_context.receive_frame() {
                             Ok(frame) => {
                                 let presentation_timestamp =
-                                    timestamp_to_duration(frame.pts, frame.time_base);
+                                    to_timestamp(frame.pts, frame.time_base);
                                 let duration_timestamp =
-                                    timestamp_to_duration(frame.duration, frame.time_base);
+                                    to_timestamp(frame.duration, frame.time_base);
                                 let image = Self::avframe_to_image(
                                     frame,
                                     &self.video_context.avcodec_context,
@@ -224,9 +224,9 @@ impl rmf_core::audio::AudioContentCursor for AVFormatAudioContentCursor {
                         match self.audio_context.avcodec_context.receive_frame() {
                             Ok(frame) => {
                                 let presentation_timestamp =
-                                    timestamp_to_duration(frame.pts, frame.time_base);
+                                    to_timestamp(frame.pts, frame.time_base);
                                 let duration_timestamp =
-                                    timestamp_to_duration(frame.duration, frame.time_base);
+                                    to_timestamp(frame.duration, frame.time_base);
                                 let audio = Self::avframe_to_audio(frame)?;
                                 self.audio_cache.push_back(Content::new(
                                     audio,
@@ -283,6 +283,6 @@ fn input_contexts(
 }
 
 #[inline]
-fn timestamp_to_duration(ts: i64, time_base: AVRational) -> Timestamp {
+fn to_timestamp(ts: i64, time_base: AVRational) -> Timestamp {
     Timestamp::from_micro_seconds(av_rescale_q(ts, time_base, AV_TIME_BASE_Q))
 }
