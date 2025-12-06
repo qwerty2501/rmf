@@ -33,7 +33,6 @@ pub struct AVFormatAudioContentCursor {
 struct AVFormatContentContexts {
     avcodec_context: AVCodecContext,
     index: usize,
-    ptr_per: f64,
 }
 
 struct ImageScaleContext {
@@ -272,15 +271,10 @@ fn input_contexts(
         .find_best_stream(media_type)
         .map_err(|e| Error::new_image(e.into()))?
     {
-        let ptr_per = {
-            let stream = &input.streams()[index];
-            stream.time_base.num as f64 / stream.time_base.den as f64
-        };
         let avcodec_context = AVCodecContext::new(&avcodec);
         Ok(Some(AVFormatContentContexts {
             avcodec_context,
             index,
-            ptr_per,
         }))
     } else {
         Ok(None)
