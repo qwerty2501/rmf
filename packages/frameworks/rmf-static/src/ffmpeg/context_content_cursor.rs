@@ -151,51 +151,46 @@ impl rmf_core::image::ImageContentCursor for AVFormatImageContentCursor {
         if let Some(content) = self.image_cache.pop_front() {
             Ok(Some(content))
         } else {
-            loop {
-                if let Some(packet) = self
-                    .input
-                    .read_packet()
-                    .map_err(|e| Error::new_image(e.into()))?
-                {
-                    if packet.stream_index == self.video_context.index as _ {
-                        self.video_context
-                            .avcodec_context
-                            .send_packet(Some(&packet))
-                            .map_err(|e| Error::new_image(e.into()))?;
+            while let Some(packet) = self
+                .input
+                .read_packet()
+                .map_err(|e| Error::new_image(e.into()))?
+            {
+                if packet.stream_index == self.video_context.index as _ {
+                    self.video_context
+                        .avcodec_context
+                        .send_packet(Some(&packet))
+                        .map_err(|e| Error::new_image(e.into()))?;
 
-                        loop {
-                            match self.video_context.avcodec_context.receive_frame() {
-                                Ok(frame) => {
-                                    let presentation_timestamp =
-                                        timestamp_to_duration(frame.pts, frame.time_base);
-                                    let duration_timestamp =
-                                        timestamp_to_duration(frame.duration, frame.time_base);
-                                    let image = Self::avframe_to_image(
-                                        frame,
-                                        &self.video_context.avcodec_context,
-                                        &mut self.image_scale_context,
-                                    )?;
-                                    self.image_cache.push_back(Content::new(
-                                        image,
-                                        presentation_timestamp,
-                                        duration_timestamp,
-                                    ));
-                                }
-                                Err(err) => {
-                                    if err == RsmpegError::DecoderFlushedError
-                                        || err == RsmpegError::DecoderFlushedError
-                                    {
-                                        break;
-                                    } else {
-                                        Err(Error::new_image(err.into()))?
-                                    }
+                    loop {
+                        match self.video_context.avcodec_context.receive_frame() {
+                            Ok(frame) => {
+                                let presentation_timestamp =
+                                    timestamp_to_duration(frame.pts, frame.time_base);
+                                let duration_timestamp =
+                                    timestamp_to_duration(frame.duration, frame.time_base);
+                                let image = Self::avframe_to_image(
+                                    frame,
+                                    &self.video_context.avcodec_context,
+                                    &mut self.image_scale_context,
+                                )?;
+                                self.image_cache.push_back(Content::new(
+                                    image,
+                                    presentation_timestamp,
+                                    duration_timestamp,
+                                ));
+                            }
+                            Err(err) => {
+                                if err == RsmpegError::DecoderFlushedError
+                                    || err == RsmpegError::DecoderDrainError
+                                {
+                                    break;
+                                } else {
+                                    Err(Error::new_image(err.into()))?
                                 }
                             }
                         }
-                        break;
                     }
-                } else {
-                    break;
                 }
             }
             Ok(self.image_cache.pop_front())
@@ -215,46 +210,41 @@ impl rmf_core::audio::AudioContentCursor for AVFormatAudioContentCursor {
         if let Some(content) = self.audio_cache.pop_front() {
             Ok(Some(content))
         } else {
-            loop {
-                if let Some(packet) = self
-                    .input
-                    .read_packet()
-                    .map_err(|e| Error::new_image(e.into()))?
-                {
-                    if packet.stream_index == self.audio_context.index as _ {
-                        self.audio_context
-                            .avcodec_context
-                            .send_packet(Some(&packet))
-                            .map_err(|e| Error::new_image(e.into()))?;
-                        loop {
-                            match self.audio_context.avcodec_context.receive_frame() {
-                                Ok(frame) => {
-                                    let presentation_timestamp =
-                                        timestamp_to_duration(frame.pts, frame.time_base);
-                                    let duration_timestamp =
-                                        timestamp_to_duration(frame.duration, frame.time_base);
-                                    let audio = Self::avframe_to_audio(frame)?;
-                                    self.audio_cache.push_back(Content::new(
-                                        audio,
-                                        presentation_timestamp,
-                                        duration_timestamp,
-                                    ));
-                                }
-                                Err(err) => {
-                                    if err == RsmpegError::DecoderFlushedError
-                                        || err == RsmpegError::DecoderFlushedError
-                                    {
-                                        break;
-                                    } else {
-                                        Err(Error::new_image(err.into()))?
-                                    }
+            while let Some(packet) = self
+                .input
+                .read_packet()
+                .map_err(|e| Error::new_image(e.into()))?
+            {
+                if packet.stream_index == self.audio_context.index as _ {
+                    self.audio_context
+                        .avcodec_context
+                        .send_packet(Some(&packet))
+                        .map_err(|e| Error::new_image(e.into()))?;
+                    loop {
+                        match self.audio_context.avcodec_context.receive_frame() {
+                            Ok(frame) => {
+                                let presentation_timestamp =
+                                    timestamp_to_duration(frame.pts, frame.time_base);
+                                let duration_timestamp =
+                                    timestamp_to_duration(frame.duration, frame.time_base);
+                                let audio = Self::avframe_to_audio(frame)?;
+                                self.audio_cache.push_back(Content::new(
+                                    audio,
+                                    presentation_timestamp,
+                                    duration_timestamp,
+                                ));
+                            }
+                            Err(err) => {
+                                if err == RsmpegError::DecoderFlushedError
+                                    || err == RsmpegError::DecoderDrainError
+                                {
+                                    break;
+                                } else {
+                                    Err(Error::new_image(err.into()))?
                                 }
                             }
                         }
                     }
-                    break;
-                } else {
-                    break;
                 }
             }
             Ok(self.audio_cache.pop_front())
