@@ -13,11 +13,10 @@ pub trait ImageContentCursor: Service {
 
 pub trait ImageInputService {
     type Item: Image;
-    type ContentCursor: ImageContentCursor;
-    fn cursor(&self) -> Result<Self::ContentCursor>;
+    fn cursor(&self) -> Result<Box<dyn ImageContentCursor<Item = Self::Item>>>;
 }
 
 pub trait ImageInputServiceProvider {
-    type InputService: ImageInputService;
-    fn try_new(source: InputSource) -> Result<Self::InputService>;
+    type Item: Image;
+    fn try_new(source: InputSource) -> Result<Box<dyn ImageInputService<Item = Self::Item>>>;
 }
