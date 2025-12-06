@@ -24,20 +24,18 @@ pub struct AVFormatAudioInputService {
 #[delegate_implements]
 impl ImageInputService for AVFormatImageInputService {
     type Item = Image;
-    fn cursor(&self) -> Result<Box<dyn ImageContentCursor<Item = Image>>> {
-        Ok(Box::new(AVFormatImageContentCursor::try_new(make_input(
-            &self.source,
-        )?)?))
+    type ContentCursor = AVFormatImageContentCursor;
+    fn cursor(&self) -> Result<AVFormatImageContentCursor> {
+        AVFormatImageContentCursor::try_new(make_input(&self.source)?)
     }
 }
 
 #[delegate_implements]
 impl AudioInputService for AVFormatAudioInputService {
     type Item = Audio;
-    fn cursor(&self) -> Result<Box<dyn AudioContentCursor<Item = Audio>>> {
-        Ok(Box::new(AVFormatAudioContentCursor::try_new(make_input(
-            &self.source,
-        )?)?))
+    type ContentCursor = AVFormatAudioContentCursor;
+    fn cursor(&self) -> Result<AVFormatAudioContentCursor> {
+        AVFormatAudioContentCursor::try_new(make_input(&self.source)?)
     }
 }
 

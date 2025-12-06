@@ -63,7 +63,8 @@ pub trait AudioContentCursor {
 
 pub trait AudioInputService {
     type Item: Audio;
-    fn cursor(&self) -> Result<Box<dyn AudioContentCursor<Item = Self::Item>>>;
+    type ContentCursor: AudioContentCursor;
+    fn cursor(&self) -> Result<Self::ContentCursor>;
 }
 
 #[repr(C)]

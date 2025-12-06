@@ -13,5 +13,6 @@ pub trait ImageContentCursor: Service {
 
 pub trait ImageInputService {
     type Item: Image;
-    fn cursor(&self) -> Result<Box<dyn ImageContentCursor<Item = Self::Item>>>;
+    type ContentCursor: ImageContentCursor;
+    fn cursor(&self) -> Result<Self::ContentCursor>;
 }
