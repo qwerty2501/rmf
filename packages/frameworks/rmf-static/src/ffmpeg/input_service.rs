@@ -2,7 +2,7 @@ use std::{ffi::CString, os::unix::ffi::OsStrExt, path::Path};
 
 use rmf_core::{
     Error, InputSource, Result,
-    audio::AudioInputService,
+    audio::{AudioContentCursor, AudioInputService},
     image::{ImageContentCursor, ImageInputService},
 };
 use rmf_macros::delegate_implements;
@@ -34,9 +34,10 @@ impl ImageInputService for AVFormatImageInputService {
 #[delegate_implements]
 impl AudioInputService for AVFormatAudioInputService {
     type Item = Audio;
-    type ContentCursor = AVFormatAudioContentCursor;
-    fn cursor(&self) -> Result<AVFormatAudioContentCursor> {
-        AVFormatAudioContentCursor::try_new(make_input(&self.source)?)
+    fn cursor(&self) -> Result<Box<dyn AudioContentCursor<Item = Audio>>> {
+        Ok(Box::new(AVFormatAudioContentCursor::try_new(make_input(
+            &self.source,
+        )?)?))
     }
 }
 
@@ -46,11 +47,9 @@ impl AVFormatImageInputService {
     }
 }
 
-#[delegate_implements]
-impl rmf_core::audio::AudioInputServiceProvider for AVFormatAudioInputService {
-    type InputService = Self;
-    fn try_new(source: InputSource) -> Result<Self> {
-        Ok(Self { source })
+impl AVFormatAudioInputService {
+    pub fn new(source: InputSource) -> Self {
+        Self { source }
     }
 }
 

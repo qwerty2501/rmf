@@ -1,4 +1,4 @@
-use crate::{Content, InnerContent, InputSource, Result, Timestamp};
+use crate::{Content, InnerContent, Result, Timestamp};
 
 pub trait Audio: InnerContent + Clone {
     type U8Data: AudioData<Item = u8>;
@@ -63,13 +63,7 @@ pub trait AudioContentCursor {
 
 pub trait AudioInputService {
     type Item: Audio;
-    type ContentCursor: AudioContentCursor;
-    fn cursor(&self) -> Result<Self::ContentCursor>;
-}
-
-pub trait AudioInputServiceProvider {
-    type InputService: AudioInputService;
-    fn try_new(source: InputSource) -> Result<Self::InputService>;
+    fn cursor(&self) -> Result<Box<dyn AudioContentCursor<Item = Self::Item>>>;
 }
 
 #[repr(C)]
