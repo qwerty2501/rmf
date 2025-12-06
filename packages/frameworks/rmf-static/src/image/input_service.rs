@@ -2,8 +2,7 @@ use rmf_core::image::ImageInputService;
 
 use crate::{
     Image,
-    ffmpeg::{AVFormatImageContentCursor, AVFormatImageInputService},
-    opaque::OpaqueImageInputService,
+    ffmpeg::AVFormatImageInputService,
 };
 
 pub struct DefaultImageServiceProvider;
