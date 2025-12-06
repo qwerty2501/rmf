@@ -1,10 +1,10 @@
-use std::{collections::VecDeque, time::Duration};
+use std::collections::VecDeque;
 
 use anyhow::anyhow;
 use rmf_core::{Content, Error, Result, Timestamp};
 use rmf_macros::delegate_implements;
 use rsmpeg::{
-    avcodec::{AVCodecContext, AVCodecRef},
+    avcodec::AVCodecContext,
     avformat::AVFormatContextInput,
     avutil::{AVFrame, AVMem, av_rescale_q},
     error::RsmpegError,

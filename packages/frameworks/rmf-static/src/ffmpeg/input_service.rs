@@ -1,15 +1,15 @@
 use std::{
     ffi::CString,
     os::unix::ffi::OsStrExt,
-    path::{Path, PathBuf},
+    path::Path,
 };
 
 use rmf_core::{Error, InputSource, Result, image::ImageInputService};
-use rsmpeg::{avformat::AVFormatContextInput, ffi::AVFormatContext};
+use rsmpeg::avformat::AVFormatContextInput;
 
 use crate::{
-    Audio, Image,
-    ffmpeg::{AVFormatAudioContentCursor, AVFormatImageContentCursor},
+    Image,
+    ffmpeg::AVFormatImageContentCursor,
 };
 
 pub struct AVFormatImageInputService {

@@ -1,4 +1,4 @@
-use crate::{Content, InnerContent, InputSource, Result, Service, Timestamp};
+use crate::{Content, InnerContent, InputSource, Result, Timestamp};
 
 pub trait Audio: InnerContent + Clone {
     type U8Data: AudioData<Item = u8>;
