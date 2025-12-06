@@ -9,6 +9,8 @@ pub struct Image {
     mat: Mat,
 }
 
+impl rmf_core::InnerContent for Image {}
+
 #[delegate_implements]
 impl rmf_core::image::Image for Image {
     fn size(&self) -> Size {

@@ -1,6 +1,6 @@
-use crate::Result;
+use crate::{Content, InnerContent, InputSource, Result, Service, Timestamp};
 
-pub trait Audio: Clone {
+pub trait Audio: InnerContent + Clone {
     type U8Data: AudioData<Item = u8>;
     type I16Data: AudioData<Item = i16>;
     type I32Data: AudioData<Item = i32>;
@@ -54,6 +54,22 @@ pub trait AudioConstructor {
             Self::F64Data,
         >,
     ) -> Result<Self::Audio>;
+}
+pub trait AudioContentCursor {
+    type Item: Audio;
+    fn read(&mut self) -> Result<Option<Content<Self::Item>>>;
+    fn seek(&mut self, timestamp: Timestamp) -> Result<()>;
+}
+
+pub trait AudioInputService {
+    type Item: Audio;
+    type ContentCursor: AudioContentCursor;
+    fn cursor(&self) -> Result<Self::ContentCursor>;
+}
+
+pub trait AudioInputServiceProvider {
+    type InputService: AudioInputService;
+    fn try_new(source: InputSource) -> Result<Self::InputService>;
 }
 
 #[repr(C)]

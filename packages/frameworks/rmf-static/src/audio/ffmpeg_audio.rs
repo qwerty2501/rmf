@@ -18,6 +18,8 @@ pub struct Audio {
     data_context: AudioDataContext,
 }
 
+impl rmf_core::InnerContent for Audio {}
+
 #[delegate_implements]
 impl rmf_core::audio::Audio for Audio {
     type U8Data = AudioData<u8>;

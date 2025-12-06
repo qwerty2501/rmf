@@ -1,7 +1,7 @@
 use std::{collections::VecDeque, time::Duration};
 
 use anyhow::anyhow;
-use rmf_core::{ContentConstructor, Error, Result, Timestamp};
+use rmf_core::{Content, Error, Result, Timestamp};
 use rmf_macros::delegate_implements;
 use rsmpeg::{
     avcodec::{AVCodecContext, AVCodecRef},
@@ -15,9 +15,9 @@ use rsmpeg::{
     swscale::SwsContext,
 };
 
-use crate::{Audio, AudioDataContextBuilder, Content, Image};
+use crate::{Audio, AudioDataContextBuilder, Image};
 
-pub struct AVFormatVideoContentCursor {
+pub struct AVFormatImageContentCursor {
     input: AVFormatContextInput,
     video_context: AVFormatContentContexts,
     image_scale_context: Option<ImageScaleContext>,
@@ -44,7 +44,7 @@ struct ImageScaleContext {
 
 const DEFAULT_PIX_FMT: AVPixelFormat = AV_PIX_FMT_BGR24;
 
-impl AVFormatVideoContentCursor {
+impl AVFormatImageContentCursor {
     pub fn try_new(input: AVFormatContextInput) -> Result<Self> {
         let video_context = input_contexts(&input, AVMEDIA_TYPE_VIDEO)?
             .ok_or_else(|| Error::new_image(anyhow!("Can not make input context").into()))?;
@@ -142,9 +142,11 @@ impl AVFormatAudioContentCursor {
     }
 }
 
+impl rmf_core::Service for AVFormatImageContentCursor {}
+
 #[delegate_implements]
-impl rmf_core::ContentCursor for AVFormatVideoContentCursor {
-    type Content = Content<Image>;
+impl rmf_core::image::ImageContentCursor for AVFormatImageContentCursor {
+    type Item = Image;
     fn read(&mut self) -> Result<Option<Content<Image>>> {
         if let Some(content) = self.image_cache.pop_front() {
             Ok(Some(content))
@@ -207,8 +209,8 @@ impl rmf_core::ContentCursor for AVFormatVideoContentCursor {
 }
 
 #[delegate_implements]
-impl rmf_core::ContentCursor for AVFormatAudioContentCursor {
-    type Content = Content<Audio>;
+impl rmf_core::audio::AudioContentCursor for AVFormatAudioContentCursor {
+    type Item = Audio;
     fn read(&mut self) -> Result<Option<Content<Audio>>> {
         if let Some(content) = self.audio_cache.pop_front() {
             Ok(Some(content))
@@ -271,6 +273,7 @@ fn seek_input(input: &mut AVFormatContextInput, timestamp: Timestamp) -> Result<
         .map_err(|e| Error::new_image(e.into()))
 }
 
+#[inline]
 fn input_contexts(
     input: &AVFormatContextInput,
     media_type: ffi::AVMediaType,
@@ -294,6 +297,7 @@ fn input_contexts(
     }
 }
 
+#[inline]
 fn timestamp_to_duration(ts: i64, time_base: AVRational) -> Timestamp {
     Timestamp::from_micro_seconds(av_rescale_q(ts, time_base, AV_TIME_BASE_Q))
 }
