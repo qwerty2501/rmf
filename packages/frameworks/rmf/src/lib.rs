@@ -1,5 +1,6 @@
 pub use rmf_core::{
     OutputService, Service,
+    audio::{AudioInputService, AudioInputServiceProvider},
     image::{ImageInputService, ImageInputServiceProvider},
 };
 
