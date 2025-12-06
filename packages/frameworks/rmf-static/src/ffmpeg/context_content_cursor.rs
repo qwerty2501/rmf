@@ -61,8 +61,8 @@ impl AVFormatImageContentCursor {
                 None,
             )
             .ok_or_else(|| Error::new_image(anyhow!("Failed get sws context.").into()))?;
-            let mut frame_cache = AVFrame::default();
-            let mut buffer = AVMem::new(unsafe {
+            let frame_cache = AVFrame::default();
+            let buffer = AVMem::new(unsafe {
                 av_image_get_buffer_size(
                     DEFAULT_PIX_FMT,
                     video_context.avcodec_context.width,
@@ -70,20 +70,21 @@ impl AVFormatImageContentCursor {
                     1,
                 )
             } as _);
+            let mut ic = ImageScaleContext {
+                sws_context,
+                buffer,
+                frame_cache,
+            };
             unsafe {
-                frame_cache.fill_arrays(
-                    buffer.as_mut_ptr(),
+                ic.frame_cache.fill_arrays(
+                    ic.buffer.as_mut_ptr(),
                     DEFAULT_PIX_FMT,
                     video_context.avcodec_context.width,
                     video_context.avcodec_context.height,
                 )
             }
             .map_err(|e| Error::new_image(e.into()))?;
-            Some(ImageScaleContext {
-                sws_context,
-                buffer,
-                frame_cache,
-            })
+            Some(ic)
         } else {
             None
         };
