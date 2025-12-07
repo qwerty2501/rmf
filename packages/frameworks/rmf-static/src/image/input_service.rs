@@ -17,7 +17,7 @@ impl rmf_core::image::ImageContentCursor for OpaqueImageContentCursor {
     }
 }
 
-struct OpaqueImageInputServiceInner<
+struct OpaqueImageInputInner<
     C: ImageContentCursor<Item = Image> + 'static,
     S: rmf_core::image::ImageInput<Item = Image, ContentCursor = C>,
 > {
@@ -27,7 +27,7 @@ struct OpaqueImageInputServiceInner<
 impl<
     C: ImageContentCursor<Item = Image> + 'static,
     S: rmf_core::image::ImageInput<Item = Image, ContentCursor = C>,
-> rmf_core::image::ImageInput for OpaqueImageInputServiceInner<C, S>
+> rmf_core::image::ImageInput for OpaqueImageInputInner<C, S>
 {
     type Item = Image;
     type ContentCursor = OpaqueImageContentCursor;
@@ -38,12 +38,12 @@ impl<
     }
 }
 
-pub struct OpaqueImageInputService {
+pub struct OpaqueImageInput {
     inner: Box<dyn ImageInput<Item = Image, ContentCursor = OpaqueImageContentCursor>>,
 }
 
 #[delegate_implements]
-impl rmf_core::image::ImageInput for OpaqueImageInputService {
+impl rmf_core::image::ImageInput for OpaqueImageInput {
     type Item = Image;
     type ContentCursor = OpaqueImageContentCursor;
     fn cursor(&self) -> rmf_core::Result<OpaqueImageContentCursor> {
@@ -51,39 +51,37 @@ impl rmf_core::image::ImageInput for OpaqueImageInputService {
     }
 }
 
-impl OpaqueImageInputService {
+impl OpaqueImageInput {
     pub fn into_opaque<C, S>(service: S) -> Self
     where
         C: ImageContentCursor<Item = Image> + 'static,
         S: ImageInput<Item = Image, ContentCursor = C> + 'static,
     {
         Self {
-            inner: Box::new(OpaqueImageInputServiceInner { inner: service }),
+            inner: Box::new(OpaqueImageInputInner { inner: service }),
         }
     }
 }
 
 pub type DefaultImageContentCursor = OpaqueImageContentCursor;
-pub type DefaultImageInputService = OpaqueImageInputService;
+pub type DefaultImageInput = OpaqueImageInput;
 
-pub struct DefaultImageInputServiceProvider;
+pub struct DefaultImageInputProvider;
 
-impl DefaultImageInputServiceProvider {
-    pub fn provide_service(
-        source: rmf_core::InputSource,
-    ) -> rmf_core::Result<DefaultImageInputService> {
-        Ok(DefaultImageInputService::into_opaque(
-            AVFormatImageInput::new(source),
-        ))
+impl DefaultImageInputProvider {
+    pub fn provide_service(source: rmf_core::InputSource) -> rmf_core::Result<DefaultImageInput> {
+        Ok(DefaultImageInput::into_opaque(AVFormatImageInput::new(
+            source,
+        )))
     }
 }
 
 impl<
     C: ImageContentCursor<Item = Image> + 'static,
     S: ImageInput<Item = Image, ContentCursor = C> + 'static,
-> From<S> for OpaqueImageInputServiceInner<C, S>
+> From<S> for OpaqueImageInputInner<C, S>
 {
     fn from(value: S) -> Self {
-        OpaqueImageInputServiceInner { inner: value }
+        OpaqueImageInputInner { inner: value }
     }
 }
