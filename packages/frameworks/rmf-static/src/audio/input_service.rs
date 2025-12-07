@@ -7,7 +7,6 @@ pub struct OpaqueAudioContentCursor {
     inner: Box<dyn AudioContentCursor<Item = Audio>>,
 }
 
-impl rmf_core::Service for OpaqueAudioContentCursor {}
 impl rmf_core::audio::AudioContentCursor for OpaqueAudioContentCursor {
     type Item = Audio;
     fn read(&mut self) -> rmf_core::Result<Option<rmf_core::Content<Audio>>> {
@@ -23,13 +22,6 @@ struct OpaqueAudioInputServiceInner<
     S: rmf_core::audio::AudioInputService<Item = Audio, ContentCursor = C>,
 > {
     inner: S,
-}
-
-impl<
-    C: AudioContentCursor<Item = Audio> + 'static,
-    S: rmf_core::audio::AudioInputService<Item = Audio, ContentCursor = C>,
-> rmf_core::Service for OpaqueAudioInputServiceInner<C, S>
-{
 }
 
 impl<

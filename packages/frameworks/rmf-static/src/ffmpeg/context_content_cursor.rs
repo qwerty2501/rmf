@@ -142,8 +142,6 @@ impl AVFormatAudioContentCursor {
     }
 }
 
-impl rmf_core::Service for AVFormatImageContentCursor {}
-
 #[delegate_implements]
 impl rmf_core::image::ImageContentCursor for AVFormatImageContentCursor {
     type Item = Image;

@@ -7,8 +7,6 @@ pub struct OpaqueImageContentCursor {
     inner: Box<dyn ImageContentCursor<Item = Image>>,
 }
 
-impl rmf_core::Service for OpaqueImageContentCursor {}
-
 impl rmf_core::image::ImageContentCursor for OpaqueImageContentCursor {
     type Item = Image;
     fn read(&mut self) -> rmf_core::Result<Option<rmf_core::Content<Image>>> {
@@ -24,13 +22,6 @@ struct OpaqueImageInputServiceInner<
     S: rmf_core::image::ImageInputService<Item = Image, ContentCursor = C>,
 > {
     inner: S,
-}
-
-impl<
-    C: ImageContentCursor<Item = Image> + 'static,
-    S: rmf_core::image::ImageInputService<Item = Image, ContentCursor = C>,
-> rmf_core::Service for OpaqueImageInputServiceInner<C, S>
-{
 }
 
 impl<
