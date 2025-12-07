@@ -257,7 +257,7 @@ impl rmf_core::audio::AudioContentCursor for AVFormatAudioContentCursor {
 #[inline]
 fn seek_input(input: &mut AVFormatContextInput, timestamp: Timestamp) -> Result<()> {
     input
-        .seek(-1, timestamp.micro_seconds(), AVSEEK_FLAG_BACKWARD as _)
+        .seek(-1, timestamp.as_microseconds(), AVSEEK_FLAG_BACKWARD as _)
         .map_err(|e| Error::new_image(e.into()))
 }
 
@@ -282,5 +282,5 @@ fn input_contexts(
 
 #[inline]
 fn to_timestamp(ts: i64, time_base: AVRational) -> Timestamp {
-    Timestamp::from_micro_seconds(av_rescale_q(ts, time_base, AV_TIME_BASE_Q))
+    Timestamp::from_microseconds(av_rescale_q(ts, time_base, AV_TIME_BASE_Q))
 }
