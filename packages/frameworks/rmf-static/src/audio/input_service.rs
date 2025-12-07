@@ -1,7 +1,7 @@
-use rmf_core::audio::{AudioContentCursor, AudioInputService};
+use rmf_core::audio::{AudioContentCursor, AudioInput};
 use rmf_macros::delegate_implements;
 
-use crate::{Audio, ffmpeg::AVFormatAudioInputService};
+use crate::{Audio, ffmpeg::AVFormatAudioInput};
 
 pub struct OpaqueAudioContentCursor {
     inner: Box<dyn AudioContentCursor<Item = Audio>>,
@@ -19,15 +19,15 @@ impl rmf_core::audio::AudioContentCursor for OpaqueAudioContentCursor {
 
 struct OpaqueAudioInputServiceInner<
     C: AudioContentCursor<Item = Audio> + 'static,
-    S: rmf_core::audio::AudioInputService<Item = Audio, ContentCursor = C>,
+    S: rmf_core::audio::AudioInput<Item = Audio, ContentCursor = C>,
 > {
     inner: S,
 }
 
 impl<
     C: AudioContentCursor<Item = Audio> + 'static,
-    S: rmf_core::audio::AudioInputService<Item = Audio, ContentCursor = C>,
-> rmf_core::audio::AudioInputService for OpaqueAudioInputServiceInner<C, S>
+    S: rmf_core::audio::AudioInput<Item = Audio, ContentCursor = C>,
+> rmf_core::audio::AudioInput for OpaqueAudioInputServiceInner<C, S>
 {
     type Item = Audio;
     type ContentCursor = OpaqueAudioContentCursor;
@@ -39,14 +39,14 @@ impl<
 }
 
 pub struct OpaqueAudioInputService {
-    inner: Box<dyn AudioInputService<Item = Audio, ContentCursor = OpaqueAudioContentCursor>>,
+    inner: Box<dyn AudioInput<Item = Audio, ContentCursor = OpaqueAudioContentCursor>>,
 }
 
 impl OpaqueAudioInputService {
     pub fn into_opaque<C, S>(service: S) -> Self
     where
         C: AudioContentCursor<Item = Audio> + 'static,
-        S: AudioInputService<Item = Audio, ContentCursor = C> + 'static,
+        S: AudioInput<Item = Audio, ContentCursor = C> + 'static,
     {
         Self {
             inner: Box::new(OpaqueAudioInputServiceInner { inner: service }),
@@ -55,7 +55,7 @@ impl OpaqueAudioInputService {
 }
 
 #[delegate_implements]
-impl rmf_core::audio::AudioInputService for OpaqueAudioInputService {
+impl rmf_core::audio::AudioInput for OpaqueAudioInputService {
     type Item = Audio;
     type ContentCursor = OpaqueAudioContentCursor;
     fn cursor(&self) -> rmf_core::Result<OpaqueAudioContentCursor> {
@@ -74,14 +74,14 @@ impl DefaultAudioInputServiceProvider {
         source: rmf_core::InputSource,
     ) -> rmf_core::Result<DefaultAudioInputService> {
         Ok(DefaultAudioInputService::into_opaque(
-            AVFormatAudioInputService::new(source),
+            AVFormatAudioInput::new(source),
         ))
     }
 }
 
 impl<
     C: AudioContentCursor<Item = Audio> + 'static,
-    S: AudioInputService<Item = Audio, ContentCursor = C> + 'static,
+    S: AudioInput<Item = Audio, ContentCursor = C> + 'static,
 > From<S> for OpaqueAudioInputServiceInner<C, S>
 {
     fn from(value: S) -> Self {

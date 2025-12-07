@@ -61,7 +61,7 @@ pub trait AudioContentCursor {
     fn seek(&mut self, timestamp: Timestamp) -> Result<()>;
 }
 
-pub trait AudioInputService {
+pub trait AudioInput {
     type Item: Audio;
     type ContentCursor: AudioContentCursor;
     fn cursor(&self) -> Result<Self::ContentCursor>;

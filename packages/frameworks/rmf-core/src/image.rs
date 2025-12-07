@@ -11,7 +11,7 @@ pub trait ImageContentCursor {
     fn seek(&mut self, timestamp: Timestamp) -> Result<()>;
 }
 
-pub trait ImageInputService {
+pub trait ImageInput {
     type Item: Image;
     type ContentCursor: ImageContentCursor;
     fn cursor(&self) -> Result<Self::ContentCursor>;

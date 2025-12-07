@@ -2,7 +2,7 @@
 
 members = [
   "packages/frameworks/rmf",
-  "packages/frameworks/rmf-core",
+  "packages/frameworks/rmf-core", "packages/frameworks/rmf-host",
   "packages/frameworks/rmf-macros",
   "packages/frameworks/rmf-static",
 ]

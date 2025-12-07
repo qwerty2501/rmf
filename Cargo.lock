@@ -541,6 +541,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "rmf-host"
+version = "0.1.0"
+dependencies = [
+ "rmf-core",
+ "rmf-static",
+]
+
+[[package]]
 name = "rmf-macros"
 version = "0.1.0"
 dependencies = [
