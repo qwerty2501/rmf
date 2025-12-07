@@ -1,4 +1,7 @@
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
+use std::{
+    ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign},
+    time::Duration,
+};
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub struct Timestamp {
@@ -81,6 +84,12 @@ impl Mul for Timestamp {
 impl MulAssign for Timestamp {
     fn mul_assign(&mut self, rhs: Self) {
         self.raw_micro_seconds.mul_assign(rhs.raw_micro_seconds);
+    }
+}
+
+impl From<Duration> for Timestamp {
+    fn from(value: Duration) -> Self {
+        Self::from_microseconds(value.as_micros() as _)
     }
 }
 
@@ -217,5 +226,20 @@ mod tests {
     ) {
         base *= rhs;
         assert_eq!(base, expected)
+    }
+
+    #[rstest]
+    #[case(Duration::from_secs(33),Timestamp { raw_micro_seconds: 33000000 })]
+    fn from_duration_works(#[case] value: Duration, #[case] expected: Timestamp) {
+        assert_eq!(Timestamp::from(value), expected)
+    }
+    #[rstest]
+    fn scenario_works() {
+        let value_secs = 550;
+        let duration = Duration::from_secs(value_secs);
+        let actual_timestamp = Timestamp::from(duration);
+        let expected = Timestamp::from_microseconds(550000000);
+        assert_eq!(expected, actual_timestamp);
+        assert_eq!(expected.as_seconds(), value_secs as _);
     }
 }
