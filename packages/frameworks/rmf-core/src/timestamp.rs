@@ -1,3 +1,5 @@
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
+
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub struct Timestamp {
     raw_micro_seconds: i64,
@@ -27,6 +29,58 @@ impl Timestamp {
         Self {
             raw_micro_seconds: micro_seconds,
         }
+    }
+}
+
+impl Add for Timestamp {
+    type Output = Timestamp;
+    fn add(self, rhs: Self) -> Self::Output {
+        Self::from_microseconds(self.raw_micro_seconds.add(rhs.raw_micro_seconds))
+    }
+}
+
+impl AddAssign for Timestamp {
+    fn add_assign(&mut self, rhs: Self) {
+        self.raw_micro_seconds.add_assign(rhs.raw_micro_seconds);
+    }
+}
+
+impl Sub for Timestamp {
+    type Output = Timestamp;
+    fn sub(self, rhs: Self) -> Self::Output {
+        Self::from_microseconds(self.raw_micro_seconds.sub(rhs.raw_micro_seconds))
+    }
+}
+
+impl SubAssign for Timestamp {
+    fn sub_assign(&mut self, rhs: Self) {
+        self.raw_micro_seconds.sub_assign(rhs.raw_micro_seconds);
+    }
+}
+
+impl Div for Timestamp {
+    type Output = Timestamp;
+    fn div(self, rhs: Self) -> Self::Output {
+        Self::from_microseconds(self.raw_micro_seconds.div(rhs.raw_micro_seconds))
+    }
+}
+
+impl DivAssign for Timestamp {
+    fn div_assign(&mut self, rhs: Self) {
+        self.raw_micro_seconds.div_assign(rhs.raw_micro_seconds)
+    }
+}
+
+impl Mul for Timestamp {
+    type Output = Timestamp;
+    fn mul(self, rhs: Self) -> Self::Output {
+        Self::from_microseconds(self.raw_micro_seconds.mul(rhs.raw_micro_seconds))
+    }
+}
+
+impl MulAssign for Timestamp {
+    fn mul_assign(&mut self, rhs: Self) {
+        self.raw_micro_seconds.mul_assign(rhs.raw_micro_seconds);
     }
 }
 
@@ -81,5 +135,87 @@ mod tests {
     #[case(Timestamp { raw_micro_seconds: 12000 },0.012)]
     fn as_seconds_float32_works(#[case] micro_seconds: Timestamp, #[case] expected: f32) {
         assert_eq!(micro_seconds.as_seconds_float32(), expected);
+    }
+
+    #[rstest]
+    #[case(Timestamp { raw_micro_seconds: -12000000 },Timestamp { raw_micro_seconds: 12000000 },Timestamp { raw_micro_seconds: 0 })]
+    #[case(Timestamp { raw_micro_seconds: -12000000 },Timestamp { raw_micro_seconds: -12000000 },Timestamp { raw_micro_seconds: -24000000 })]
+    #[case(Timestamp { raw_micro_seconds: 12000000 },Timestamp { raw_micro_seconds: 12000000 },Timestamp { raw_micro_seconds: 24000000 })]
+    fn add_works(#[case] base: Timestamp, #[case] rhs: Timestamp, #[case] expected: Timestamp) {
+        assert_eq!(base + rhs, expected)
+    }
+    #[rstest]
+    #[case(Timestamp { raw_micro_seconds: -12000000 },Timestamp { raw_micro_seconds: 12000000 },Timestamp { raw_micro_seconds: 0 })]
+    #[case(Timestamp { raw_micro_seconds: -12000000 },Timestamp { raw_micro_seconds: -12000000 },Timestamp { raw_micro_seconds: -24000000 })]
+    #[case(Timestamp { raw_micro_seconds: 12000000 },Timestamp { raw_micro_seconds: 12000000 },Timestamp { raw_micro_seconds: 24000000 })]
+    fn add_assign_works(
+        #[case] mut base: Timestamp,
+        #[case] rhs: Timestamp,
+        #[case] expected: Timestamp,
+    ) {
+        base += rhs;
+        assert_eq!(base, expected)
+    }
+
+    #[rstest]
+    #[case(Timestamp { raw_micro_seconds: -12000000 },Timestamp { raw_micro_seconds: 12000000 },Timestamp { raw_micro_seconds: -24000000 })]
+    #[case(Timestamp { raw_micro_seconds: -12000000 },Timestamp { raw_micro_seconds: -12000000 },Timestamp { raw_micro_seconds: 0 })]
+    #[case(Timestamp { raw_micro_seconds: 12000000 },Timestamp { raw_micro_seconds: 12000000 },Timestamp { raw_micro_seconds: 0 })]
+    fn sub_works(#[case] base: Timestamp, #[case] rhs: Timestamp, #[case] expected: Timestamp) {
+        assert_eq!(base - rhs, expected)
+    }
+
+    #[rstest]
+    #[case(Timestamp { raw_micro_seconds: -12000000 },Timestamp { raw_micro_seconds: 12000000 },Timestamp { raw_micro_seconds: -24000000 })]
+    #[case(Timestamp { raw_micro_seconds: -12000000 },Timestamp { raw_micro_seconds: -12000000 },Timestamp { raw_micro_seconds: 0 })]
+    #[case(Timestamp { raw_micro_seconds: 12000000 },Timestamp { raw_micro_seconds: 12000000 },Timestamp { raw_micro_seconds: 0 })]
+    fn sub_assign_works(
+        #[case] mut base: Timestamp,
+        #[case] rhs: Timestamp,
+        #[case] expected: Timestamp,
+    ) {
+        base -= rhs;
+        assert_eq!(base, expected)
+    }
+
+    #[rstest]
+    #[case(Timestamp { raw_micro_seconds: -12000000 },Timestamp { raw_micro_seconds: 12000000 },Timestamp { raw_micro_seconds: -1 })]
+    #[case(Timestamp { raw_micro_seconds: -12000000 },Timestamp { raw_micro_seconds: -12000000 },Timestamp { raw_micro_seconds: 1 })]
+    #[case(Timestamp { raw_micro_seconds: 12000000 },Timestamp { raw_micro_seconds: 12000000 },Timestamp { raw_micro_seconds: 1 })]
+    fn div_works(#[case] base: Timestamp, #[case] rhs: Timestamp, #[case] expected: Timestamp) {
+        assert_eq!(base / rhs, expected)
+    }
+    #[rstest]
+    #[case(Timestamp { raw_micro_seconds: -12000000 },Timestamp { raw_micro_seconds: 12000000 },Timestamp { raw_micro_seconds: -1 })]
+    #[case(Timestamp { raw_micro_seconds: -12000000 },Timestamp { raw_micro_seconds: -12000000 },Timestamp { raw_micro_seconds: 1 })]
+    #[case(Timestamp { raw_micro_seconds: 12000000 },Timestamp { raw_micro_seconds: 12000000 },Timestamp { raw_micro_seconds: 1 })]
+    fn div_assign_works(
+        #[case] mut base: Timestamp,
+        #[case] rhs: Timestamp,
+        #[case] expected: Timestamp,
+    ) {
+        base /= rhs;
+        assert_eq!(base, expected)
+    }
+
+    #[rstest]
+    #[case(Timestamp { raw_micro_seconds: -12 },Timestamp { raw_micro_seconds: 100 },Timestamp { raw_micro_seconds: -1200 })]
+    #[case(Timestamp { raw_micro_seconds: -12 },Timestamp { raw_micro_seconds: 0 },Timestamp { raw_micro_seconds: 0 })]
+    #[case(Timestamp { raw_micro_seconds: 12000000 },Timestamp { raw_micro_seconds: 1},Timestamp { raw_micro_seconds: 12000000 })]
+    fn mul_works(#[case] base: Timestamp, #[case] rhs: Timestamp, #[case] expected: Timestamp) {
+        assert_eq!(base * rhs, expected)
+    }
+
+    #[rstest]
+    #[case(Timestamp { raw_micro_seconds: -12 },Timestamp { raw_micro_seconds: 100 },Timestamp { raw_micro_seconds: -1200 })]
+    #[case(Timestamp { raw_micro_seconds: -12 },Timestamp { raw_micro_seconds: 0 },Timestamp { raw_micro_seconds: 0 })]
+    #[case(Timestamp { raw_micro_seconds: 12000000 },Timestamp { raw_micro_seconds: 1},Timestamp { raw_micro_seconds: 12000000 })]
+    fn mul_assign_works(
+        #[case] mut base: Timestamp,
+        #[case] rhs: Timestamp,
+        #[case] expected: Timestamp,
+    ) {
+        base *= rhs;
+        assert_eq!(base, expected)
     }
 }
