@@ -1,23 +1,25 @@
-use rmf_core::{Content, InnerContent, Result, Timestamp};
+use rmf_core::{Content, InnerContent, Timestamp};
 use rmf_static::{Audio, Image};
 
-pub trait Service {}
+use crate::Result;
 
-pub trait ContentCursor {
+pub trait ServiceTrait {}
+
+pub trait ContentCursorTrait {
     type Item: InnerContent;
     fn read(&mut self) -> Result<Option<Content<Self::Item>>>;
     fn seek(&mut self, timestamp: Timestamp) -> Result<()>;
 }
-pub trait ContentStreamService: Service {
+pub trait ContentStreamServiceTrait: ServiceTrait {
     type Item: InnerContent;
-    type ContentCursor: ContentCursor;
+    type ContentCursor: ContentCursorTrait;
     fn cursor(&self) -> Result<Self::ContentCursor>;
 }
 
-pub trait ImageContentStreamService: ContentStreamService<Item = Image> {}
+pub trait ImageContentStreamServiceTrait: ContentStreamServiceTrait<Item = Image> {}
 
-pub trait ImageInputService: ImageContentStreamService {}
+pub trait ImageInputServiceTrait: ImageContentStreamServiceTrait {}
 
-pub trait AudioContentStreamService: ContentStreamService<Item = Audio> {}
+pub trait AudioContentStreamServiceTrait: ContentStreamServiceTrait<Item = Audio> {}
 
-pub trait AudioInputService: AudioContentStreamService {}
+pub trait AudioInputServiceTrait: AudioContentStreamServiceTrait {}

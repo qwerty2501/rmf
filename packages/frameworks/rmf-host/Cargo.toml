@@ -8,3 +8,5 @@ license-file.workspace = true
 [dependencies]
 rmf-static = { path = "../rmf-static" }
 rmf-core = { path = "../rmf-core" }
+thiserror.workspace = true
+derive-new.workspace = true

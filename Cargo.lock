@@ -544,8 +544,10 @@ dependencies = [
 name = "rmf-host"
 version = "0.1.0"
 dependencies = [
+ "derive-new",
  "rmf-core",
  "rmf-static",
+ "thiserror",
 ]
 
 [[package]]
