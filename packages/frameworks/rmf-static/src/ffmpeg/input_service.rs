@@ -2,8 +2,8 @@ use std::{ffi::CString, os::unix::ffi::OsStrExt, path::Path};
 
 use rmf_core::{
     Error, InputSource, Result,
-    audio::{AudioContentCursor, AudioInputService},
-    image::{ImageContentCursor, ImageInputService},
+    audio::AudioInputService,
+    image::ImageInputService,
 };
 use rmf_macros::delegate_implements;
 use rsmpeg::avformat::AVFormatContextInput;
