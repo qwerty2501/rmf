@@ -10,6 +10,7 @@ pub trait ContentCursorTrait {
     fn read(&mut self) -> Result<Option<Content<Self::Item>>>;
     fn seek(&mut self, timestamp: Timestamp) -> Result<()>;
 }
+
 pub trait ContentStreamServiceTrait: ServiceTrait {
     type Item: InnerContent;
     type ContentCursor: ContentCursorTrait;
