@@ -9,10 +9,12 @@ use crate::{
     ffmpeg::{AVFormatAudioContentCursor, AVFormatImageContentCursor},
 };
 
+#[derive(Clone)]
 pub struct AVFormatImageInput {
     source: InputSource,
 }
 
+#[derive(Clone)]
 pub struct AVFormatAudioInput {
     source: InputSource,
 }
