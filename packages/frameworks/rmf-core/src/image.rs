@@ -1,3 +1,5 @@
+use dyn_clone::DynClone;
+
 use crate::{Content, InnerContent, Result, Size, Timestamp};
 
 pub trait Image: InnerContent + Clone {
@@ -11,7 +13,7 @@ pub trait ImageContentCursor {
     fn seek(&mut self, timestamp: Timestamp) -> Result<()>;
 }
 
-pub trait ImageInput {
+pub trait ImageInput: Clone + DynClone {
     type Item: Image;
     type ContentCursor: ImageContentCursor;
     fn cursor(&self) -> Result<Self::ContentCursor>;

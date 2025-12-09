@@ -2,7 +2,8 @@
 
 members = [
   "packages/frameworks/rmf",
-  "packages/frameworks/rmf-core", "packages/frameworks/rmf-host",
+  "packages/frameworks/rmf-core",
+  "packages/frameworks/rmf-host",
   "packages/frameworks/rmf-macros",
   "packages/frameworks/rmf-static",
 ]
@@ -25,3 +26,4 @@ proc-macro2 = "1.0.103"
 thiserror = "2.0.17"
 derive-new = "0.7.0"
 anyhow = "1.0.100"
+dyn-clone = "1.0.20"

@@ -1,3 +1,5 @@
+use dyn_clone::DynClone;
+
 use crate::{Content, InnerContent, Result, Timestamp};
 
 pub trait Audio: InnerContent + Clone {
@@ -61,7 +63,7 @@ pub trait AudioContentCursor {
     fn seek(&mut self, timestamp: Timestamp) -> Result<()>;
 }
 
-pub trait AudioInput {
+pub trait AudioInput: Clone + DynClone {
     type Item: Audio;
     type ContentCursor: AudioContentCursor;
     fn cursor(&self) -> Result<Self::ContentCursor>;

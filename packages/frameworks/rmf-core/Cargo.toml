@@ -12,4 +12,5 @@ pretty_assertions.workspace = true
 
 [dependencies]
 derive-new.workspace = true
+dyn-clone.workspace = true
 thiserror.workspace = true
