@@ -5,7 +5,7 @@ use crate::image::Image;
 use crate::service::{ContentCursorTrait, ServiceTrait};
 use crate::{
     opaque::OpaqueImageContentStreamService,
-    service::{ContentStreamServiceTrait, ImageContentStreamServiceTrait},
+    service::{ContentStreamServiceTrait, VideoContentStreamServiceTrait},
 };
 
 #[derive(Clone)]
@@ -35,4 +35,4 @@ impl ContentStreamServiceTrait for VideoTrack {
     }
 }
 
-impl ImageContentStreamServiceTrait for VideoTrack {}
+impl VideoContentStreamServiceTrait for VideoTrack {}

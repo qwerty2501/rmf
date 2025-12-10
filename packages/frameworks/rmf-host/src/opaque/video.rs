@@ -2,25 +2,25 @@ use rmf_static::Image;
 
 use crate::{
     Result,
-    image::{ImageInputContentCursor, ImageInputService},
     service::{ContentCursorTrait, ContentStreamServiceTrait, ServiceTrait},
+    video::{VideoInputContentCursor, VideoInputService},
 };
 
-pub struct OpaqueImageContentCursor(ContextImageContentCursor);
+pub struct OpaqueImageContentCursor(ContextVideoContentCursor);
 
-enum ContextImageContentCursor {
-    ImageInputContentCursor(ImageInputContentCursor),
+enum ContextVideoContentCursor {
+    VideoInputContentCursor(VideoInputContentCursor),
 }
 impl ContentCursorTrait for OpaqueImageContentCursor {
     type Item = Image;
     fn read(&mut self) -> Result<Option<rmf_core::Content<Self::Item>>> {
         match &mut self.0 {
-            ContextImageContentCursor::ImageInputContentCursor(c) => c.read(),
+            ContextVideoContentCursor::VideoInputContentCursor(c) => c.read(),
         }
     }
     fn seek(&mut self, timestamp: rmf_core::Timestamp) -> Result<()> {
         match &mut self.0 {
-            ContextImageContentCursor::ImageInputContentCursor(c) => c.seek(timestamp),
+            ContextVideoContentCursor::VideoInputContentCursor(c) => c.seek(timestamp),
         }
     }
 }
@@ -30,7 +30,7 @@ pub struct OpaqueImageContentStreamService(ContextImageContentStreamService);
 
 #[derive(Clone)]
 enum ContextImageContentStreamService {
-    ImageInputService(ImageInputService),
+    VideoInputService(VideoInputService),
 }
 impl ServiceTrait for OpaqueImageContentStreamService {}
 
@@ -39,15 +39,15 @@ impl ContentStreamServiceTrait for OpaqueImageContentStreamService {
     type ContentCursor = OpaqueImageContentCursor;
     fn cursor(&self) -> Result<Self::ContentCursor> {
         Ok(match &self.0 {
-            ContextImageContentStreamService::ImageInputService(s) => OpaqueImageContentCursor(
-                ContextImageContentCursor::ImageInputContentCursor(s.cursor()?),
+            ContextImageContentStreamService::VideoInputService(s) => OpaqueImageContentCursor(
+                ContextVideoContentCursor::VideoInputContentCursor(s.cursor()?),
             ),
         })
     }
 }
 
-impl From<ImageInputService> for OpaqueImageContentStreamService {
-    fn from(value: ImageInputService) -> Self {
-        Self(ContextImageContentStreamService::ImageInputService(value))
+impl From<VideoInputService> for OpaqueImageContentStreamService {
+    fn from(value: VideoInputService) -> Self {
+        Self(ContextImageContentStreamService::VideoInputService(value))
     }
 }

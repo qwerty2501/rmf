@@ -1,16 +1,16 @@
 use std::{ffi::CString, os::unix::ffi::OsStrExt, path::Path};
 
-use rmf_core::{Error, InputSource, Result, audio::AudioInput, image::ImageInput};
+use rmf_core::{Error, InputSource, Result, audio::AudioInput, video::VideoInput};
 use rmf_macros::delegate_implements;
 use rsmpeg::avformat::AVFormatContextInput;
 
 use crate::{
     Audio, Image,
-    ffmpeg::{AVFormatAudioContentCursor, AVFormatImageContentCursor},
+    ffmpeg::{AVFormatAudioContentCursor, AVFormatVideoContentCursor},
 };
 
 #[derive(Clone)]
-pub struct AVFormatImageInput {
+pub struct AVFormatVideoInput {
     source: InputSource,
 }
 
@@ -20,11 +20,11 @@ pub struct AVFormatAudioInput {
 }
 
 #[delegate_implements]
-impl ImageInput for AVFormatImageInput {
+impl VideoInput for AVFormatVideoInput {
     type Item = Image;
-    type ContentCursor = AVFormatImageContentCursor;
-    fn cursor(&self) -> Result<AVFormatImageContentCursor> {
-        AVFormatImageContentCursor::try_new(make_input(&self.source)?)
+    type ContentCursor = AVFormatVideoContentCursor;
+    fn cursor(&self) -> Result<AVFormatVideoContentCursor> {
+        AVFormatVideoContentCursor::try_new(make_input(&self.source)?)
     }
 }
 
@@ -37,7 +37,7 @@ impl AudioInput for AVFormatAudioInput {
     }
 }
 
-impl AVFormatImageInput {
+impl AVFormatVideoInput {
     pub fn new(source: InputSource) -> Self {
         Self { source }
     }

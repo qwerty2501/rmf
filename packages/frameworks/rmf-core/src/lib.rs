@@ -5,6 +5,7 @@ mod result;
 mod service;
 mod size;
 mod timestamp;
+pub mod video;
 
 pub use content::*;
 pub use result::*;

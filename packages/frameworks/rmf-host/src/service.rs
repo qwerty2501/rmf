@@ -18,9 +18,9 @@ pub trait ContentStreamServiceTrait: ServiceTrait + Clone + DynClone {
     fn cursor(&self) -> Result<Self::ContentCursor>;
 }
 
-pub trait ImageContentStreamServiceTrait: ContentStreamServiceTrait<Item = Image> {}
+pub trait VideoContentStreamServiceTrait: ContentStreamServiceTrait<Item = Image> {}
 
-pub trait ImageInputServiceTrait: ContentStreamServiceTrait<Item = Image> {}
+pub trait VideoInputServiceTrait: ContentStreamServiceTrait<Item = Image> {}
 
 pub trait AudioContentStreamServiceTrait: ContentStreamServiceTrait<Item = Audio> {}
 

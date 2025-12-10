@@ -17,7 +17,7 @@ use rsmpeg::{
 
 use crate::{Audio, AudioDataContextBuilder, Image};
 
-pub struct AVFormatImageContentCursor {
+pub struct AVFormatVideoContentCursor {
     input: AVFormatContextInput,
     video_context: AVFormatContentContexts,
     image_scale_context: Option<ImageScaleContext>,
@@ -43,7 +43,7 @@ struct ImageScaleContext {
 
 const DEFAULT_PIX_FMT: AVPixelFormat = AV_PIX_FMT_BGR24;
 
-impl AVFormatImageContentCursor {
+impl AVFormatVideoContentCursor {
     pub fn try_new(input: AVFormatContextInput) -> Result<Self> {
         let video_context = input_contexts(&input, AVMEDIA_TYPE_VIDEO)?
             .ok_or_else(|| Error::new_image(anyhow!("Can not make input context").into()))?;
@@ -143,7 +143,7 @@ impl AVFormatAudioContentCursor {
 }
 
 #[delegate_implements]
-impl rmf_core::image::ImageContentCursor for AVFormatImageContentCursor {
+impl rmf_core::video::VideoContentCursor for AVFormatVideoContentCursor {
     type Item = Image;
     fn read(&mut self) -> Result<Option<Content<Image>>> {
         if let Some(content) = self.image_cache.pop_front() {

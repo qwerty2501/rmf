@@ -1,0 +1,15 @@
+use dyn_clone::DynClone;
+
+use crate::{Content, Result, Timestamp, image::Image};
+
+pub trait VideoContentCursor {
+    type Item: Image;
+    fn read(&mut self) -> Result<Option<Content<Self::Item>>>;
+    fn seek(&mut self, timestamp: Timestamp) -> Result<()>;
+}
+
+pub trait VideoInput: Clone + DynClone {
+    type Item: Image;
+    type ContentCursor: VideoContentCursor;
+    fn cursor(&self) -> Result<Self::ContentCursor>;
+}
