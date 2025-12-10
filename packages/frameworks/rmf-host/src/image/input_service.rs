@@ -78,3 +78,11 @@ impl ContentStreamServiceTrait for ImageInputService {
 impl ImageContentStreamServiceTrait for ImageInputService {}
 
 impl ImageInputServiceTrait for ImageInputService {}
+
+impl From<DefaultImageInput> for ImageInputService {
+    fn from(value: DefaultImageInput) -> Self {
+        ImageInputService {
+            inner: ContextImageInput::Default(value),
+        }
+    }
+}

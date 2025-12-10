@@ -1,8 +1,9 @@
 mod error;
-mod image;
+pub mod image;
+mod opaque;
 mod result;
 mod service;
-mod tracks;
+pub mod tracks;
 
 pub use error::*;
 pub use result::*;

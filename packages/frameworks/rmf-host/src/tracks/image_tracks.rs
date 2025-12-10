@@ -1,7 +1,8 @@
-use std::{collections::VecDeque, sync::Arc};
+use std::collections::VecDeque;
 
-use crate::service::{ContextImageContentStreamService, ImageContentStreamServiceTrait};
+use crate::opaque::OpaqueImageContentStreamService;
 
+#[derive(Clone)]
 pub struct ImageTracks {
-    tracks: VecDeque<ContextImageContentStreamService>,
+    tracks: VecDeque<OpaqueImageContentStreamService>,
 }
