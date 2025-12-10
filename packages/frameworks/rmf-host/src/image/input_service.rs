@@ -11,11 +11,11 @@ use crate::{
 };
 
 #[derive(Clone)]
-pub enum ContextImageInput {
+enum ContextImageInput {
     Default(DefaultImageInput),
 }
 
-pub enum ContextImageContentCursor {
+enum ContextImageContentCursor {
     Default(DefaultImageContentCursor),
 }
 
