@@ -23,11 +23,13 @@ enum ContextVideoContentCursor {
 
 impl rmf_core::video::VideoContentCursor for ContextVideoContentCursor {
     type Item = Image;
+    #[inline]
     fn read(&mut self) -> rmf_core::Result<Option<rmf_core::Content<Self::Item>>> {
         match self {
             Self::Default(d) => d.read(),
         }
     }
+    #[inline]
     fn seek(&mut self, timestamp: rmf_core::Timestamp) -> rmf_core::Result<()> {
         match self {
             Self::Default(d) => d.seek(timestamp),
@@ -38,6 +40,13 @@ impl rmf_core::video::VideoContentCursor for ContextVideoContentCursor {
 impl rmf_core::video::VideoInput for ContextVideoInput {
     type Item = Image;
     type ContentCursor = ContextVideoContentCursor;
+    #[inline]
+    fn duration(&self) -> rmf_core::Timestamp {
+        match self {
+            Self::Default(d) => d.duration(),
+        }
+    }
+    #[inline]
     fn cursor(&self) -> rmf_core::Result<Self::ContentCursor> {
         Ok(match self {
             Self::Default(d) => ContextVideoContentCursor::Default(d.cursor()?),
@@ -69,6 +78,11 @@ impl ServiceTrait for VideoInputService {}
 impl ContentStreamServiceTrait for VideoInputService {
     type Item = Image;
     type ContentCursor = VideoInputContentCursor;
+    #[inline]
+    fn duration(&self) -> rmf_core::Timestamp {
+        self.inner.duration()
+    }
+    #[inline]
     fn cursor(&self) -> Result<Self::ContentCursor> {
         Ok(VideoInputContentCursor {
             inner: self.inner.cursor()?,

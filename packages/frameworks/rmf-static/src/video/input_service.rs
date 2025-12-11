@@ -1,3 +1,4 @@
+use rmf_core::Timestamp;
 use rmf_macros::delegate_implements;
 
 use crate::{
@@ -25,6 +26,9 @@ pub struct DefaultVideoInput(AVFormatVideoInput);
 impl rmf_core::video::VideoInput for DefaultVideoInput {
     type Item = Image;
     type ContentCursor = DefaultVideoContentCursor;
+    fn duration(&self) -> Timestamp {
+        self.0.duration()
+    }
     fn cursor(&self) -> rmf_core::Result<DefaultVideoContentCursor> {
         Ok(DefaultVideoContentCursor(self.0.cursor()?))
     }
@@ -34,6 +38,6 @@ pub struct DefaultVideoInputProvider;
 
 impl DefaultVideoInputProvider {
     pub fn provide(source: rmf_core::InputSource) -> rmf_core::Result<DefaultVideoInput> {
-        Ok(DefaultVideoInput(AVFormatVideoInput::new(source)))
+        Ok(DefaultVideoInput(AVFormatVideoInput::try_new(source)?))
     }
 }

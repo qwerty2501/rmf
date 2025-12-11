@@ -52,6 +52,12 @@ impl ServiceTrait for ContextVideoContentStreamService {}
 impl ContentStreamServiceTrait for ContextVideoContentStreamService {
     type Item = Image;
     type ContentCursor = ContextVideoContentCursor;
+    fn duration(&self) -> rmf_core::Timestamp {
+        match self {
+            ContextVideoContentStreamService::VideoTrack(t) => t.duration(),
+            ContextVideoContentStreamService::VideoInputService(i) => i.duration(),
+        }
+    }
     fn cursor(&self) -> crate::Result<Self::ContentCursor> {
         Ok(match self {
             ContextVideoContentStreamService::VideoTrack(t) => {

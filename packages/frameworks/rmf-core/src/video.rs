@@ -11,6 +11,7 @@ pub trait VideoContentCursor {
 pub trait VideoInput: DynClone {
     type Item: Image;
     type ContentCursor: VideoContentCursor;
+    fn duration(&self) -> Timestamp;
     fn cursor(&self) -> Result<Self::ContentCursor>;
 }
 

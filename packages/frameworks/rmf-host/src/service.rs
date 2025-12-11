@@ -15,6 +15,7 @@ pub trait ContentCursorTrait {
 pub trait ContentStreamServiceTrait: ServiceTrait + DynClone {
     type Item: InnerContent;
     type ContentCursor: ContentCursorTrait;
+    fn duration(&self) -> Timestamp;
     fn cursor(&self) -> Result<Self::ContentCursor>;
 }
 

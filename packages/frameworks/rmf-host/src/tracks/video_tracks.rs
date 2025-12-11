@@ -1,5 +1,7 @@
 use std::collections::VecDeque;
 
+use rmf_core::Timestamp;
+
 use crate::context::ContextVideoContentStreamService;
 use crate::image::Image;
 
@@ -7,8 +9,20 @@ use crate::service::{ContentCursorTrait, ServiceTrait};
 use crate::service::{ContentStreamServiceTrait, VideoContentStreamServiceTrait};
 
 #[derive(Clone)]
+struct ContentRange {
+    content: ContextVideoContentStreamService,
+    offset: Timestamp,
+}
+
+impl ContentRange {
+    fn offset(&self) -> Timestamp {
+        self.offset
+    }
+}
+
+#[derive(Clone)]
 pub struct VideoTrack {
-    sequence: VecDeque<ContextVideoContentStreamService>,
+    sequence: VecDeque<ContentRange>,
 }
 
 pub struct VideoTrackContentCursor {}
@@ -28,6 +42,9 @@ impl ServiceTrait for VideoTrack {}
 impl ContentStreamServiceTrait for VideoTrack {
     type Item = Image;
     type ContentCursor = VideoTrackContentCursor;
+    fn duration(&self) -> Timestamp {
+        unimplemented!()
+    }
     fn cursor(&self) -> crate::Result<Self::ContentCursor> {
         unimplemented!()
     }
