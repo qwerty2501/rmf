@@ -3,7 +3,7 @@ use std::{
     time::Duration,
 };
 
-#[derive(Clone, Copy, PartialEq, Debug)]
+#[derive(Clone, Copy, PartialEq, Debug, Default)]
 pub struct Timestamp {
     raw_micro_seconds: i64,
 }

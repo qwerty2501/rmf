@@ -43,7 +43,11 @@ impl ContentStreamServiceTrait for VideoTrack {
     type Item = Image;
     type ContentCursor = VideoTrackContentCursor;
     fn duration(&self) -> Timestamp {
-        unimplemented!()
+        if let Some(c) = self.sequence.iter().last() {
+            c.offset + c.content.duration()
+        } else {
+            Timestamp::default()
+        }
     }
     fn cursor(&self) -> crate::Result<Self::ContentCursor> {
         unimplemented!()
