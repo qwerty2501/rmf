@@ -3,14 +3,11 @@ use std::collections::VecDeque;
 use crate::image::Image;
 
 use crate::service::{ContentCursorTrait, ServiceTrait};
-use crate::{
-    opaque::OpaqueImageContentStreamService,
-    service::{ContentStreamServiceTrait, VideoContentStreamServiceTrait},
-};
+use crate::service::{ContentStreamServiceTrait, VideoContentStreamServiceTrait};
 
 #[derive(Clone)]
 pub struct VideoTrack {
-    sequence: VecDeque<OpaqueImageContentStreamService>,
+    sequence: VecDeque<Box<dyn VideoContentStreamServiceTrait>>,
 }
 
 pub struct VideoTrackContentCursor {}
@@ -29,8 +26,7 @@ impl ServiceTrait for VideoTrack {}
 
 impl ContentStreamServiceTrait for VideoTrack {
     type Item = Image;
-    type ContentCursor = VideoTrackContentCursor;
-    fn cursor(&self) -> crate::Result<Self::ContentCursor> {
+    fn cursor(&self) -> crate::Result<Box<dyn ContentCursorTrait<Item = Self::Item>>> {
         unimplemented!()
     }
 }

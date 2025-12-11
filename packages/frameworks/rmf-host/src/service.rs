@@ -12,16 +12,19 @@ pub trait ContentCursorTrait {
     fn seek(&mut self, timestamp: Timestamp) -> Result<()>;
 }
 
-pub trait ContentStreamServiceTrait: ServiceTrait + Clone + DynClone {
+pub trait ContentStreamServiceTrait: ServiceTrait + DynClone {
     type Item: InnerContent;
-    type ContentCursor: ContentCursorTrait<Item = Self::Item>;
-    fn cursor(&self) -> Result<Self::ContentCursor>;
+    fn cursor(&self) -> Result<Box<dyn ContentCursorTrait<Item = Self::Item>>>;
 }
 
 pub trait VideoContentStreamServiceTrait: ContentStreamServiceTrait<Item = Image> {}
+
+dyn_clone::clone_trait_object!(VideoContentStreamServiceTrait);
 
 pub trait VideoInputServiceTrait: ContentStreamServiceTrait<Item = Image> {}
 
 pub trait AudioContentStreamServiceTrait: ContentStreamServiceTrait<Item = Audio> {}
 
 pub trait AudioInputServiceTrait: ContentStreamServiceTrait<Item = Audio> {}
+
+dyn_clone::clone_trait_object!(AudioInputServiceTrait);
