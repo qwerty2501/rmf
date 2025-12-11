@@ -8,8 +8,10 @@ pub trait VideoContentCursor {
     fn seek(&mut self, timestamp: Timestamp) -> Result<()>;
 }
 
-pub trait VideoInput: Clone + DynClone {
+pub trait VideoInput: DynClone {
     type Item: Image;
     type ContentCursor: VideoContentCursor;
     fn cursor(&self) -> Result<Self::ContentCursor>;
 }
+
+dyn_clone::clone_trait_object!(<I,C> VideoInput<Item = I,ContentCursor=C> where I:Image ,C:VideoContentCursor);

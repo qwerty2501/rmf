@@ -63,11 +63,12 @@ pub trait AudioContentCursor {
     fn seek(&mut self, timestamp: Timestamp) -> Result<()>;
 }
 
-pub trait AudioInput: Clone + DynClone {
+pub trait AudioInput: DynClone {
     type Item: Audio;
     type ContentCursor: AudioContentCursor;
     fn cursor(&self) -> Result<Self::ContentCursor>;
 }
+dyn_clone::clone_trait_object!(<I,C> AudioInput<Item = I,ContentCursor=C> where I:Audio ,C:AudioContentCursor);
 
 #[repr(C)]
 pub enum AudioFormat {
