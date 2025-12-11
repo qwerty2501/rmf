@@ -14,12 +14,13 @@ pub trait ContentCursorTrait {
 
 pub trait ContentStreamServiceTrait: ServiceTrait + DynClone {
     type Item: InnerContent;
-    fn cursor(&self) -> Result<Box<dyn ContentCursorTrait<Item = Self::Item>>>;
+    type ContentCursor: ContentCursorTrait;
+    fn cursor(&self) -> Result<Self::ContentCursor>;
 }
 
 pub trait VideoContentStreamServiceTrait: ContentStreamServiceTrait<Item = Image> {}
 
-dyn_clone::clone_trait_object!(VideoContentStreamServiceTrait);
+dyn_clone::clone_trait_object!(<C> VideoContentStreamServiceTrait<ContentCursor = C> where C:ContentCursorTrait);
 
 pub trait VideoInputServiceTrait: ContentStreamServiceTrait<Item = Image> {}
 
@@ -27,4 +28,4 @@ pub trait AudioContentStreamServiceTrait: ContentStreamServiceTrait<Item = Audio
 
 pub trait AudioInputServiceTrait: ContentStreamServiceTrait<Item = Audio> {}
 
-dyn_clone::clone_trait_object!(AudioInputServiceTrait);
+dyn_clone::clone_trait_object!(<C> AudioInputServiceTrait<ContentCursor = C> where C:ContentCursorTrait);

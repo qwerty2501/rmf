@@ -68,10 +68,11 @@ impl ServiceTrait for VideoInputService {}
 
 impl ContentStreamServiceTrait for VideoInputService {
     type Item = Image;
-    fn cursor(&self) -> Result<Box<dyn ContentCursorTrait<Item = Self::Item>>> {
-        Ok(Box::new(VideoInputContentCursor {
+    type ContentCursor = VideoInputContentCursor;
+    fn cursor(&self) -> Result<Self::ContentCursor> {
+        Ok(VideoInputContentCursor {
             inner: self.inner.cursor()?,
-        }))
+        })
     }
 }
 
