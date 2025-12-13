@@ -8,5 +8,7 @@ pub enum Error {
     Audio(Box<dyn std::error::Error>),
     #[error("input error {0}")]
     Input(Box<dyn std::error::Error>),
+    #[error("end of file")]
+    Eof,
 }
 pub type Result<T> = std::result::Result<T, Error>;

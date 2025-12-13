@@ -44,3 +44,9 @@ impl rmf_core::image::Image for Image {
         Ok(Self { mat })
     }
 }
+
+impl Image {
+    pub(crate) fn new(mat: Mat) -> Self {
+        Self { mat }
+    }
+}

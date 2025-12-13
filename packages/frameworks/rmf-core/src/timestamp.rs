@@ -4,6 +4,7 @@ use std::{
     time::Duration,
 };
 
+#[repr(C)]
 #[derive(Clone, Copy, PartialEq, Debug, Default, PartialOrd)]
 pub struct Timestamp {
     raw_micro_seconds: i64,
@@ -32,6 +33,21 @@ impl Timestamp {
     pub const fn from_microseconds(micro_seconds: i64) -> Self {
         Self {
             raw_micro_seconds: micro_seconds,
+        }
+    }
+    pub const fn from_seconds(seconds: i64) -> Self {
+        Self {
+            raw_micro_seconds: (seconds * SECONDS_RATIO),
+        }
+    }
+    pub const fn from_seconds_float64(seconds: f64) -> Self {
+        Self {
+            raw_micro_seconds: (seconds * SECONDS_RATIO as f64) as i64,
+        }
+    }
+    pub const fn from_seconds_float32(seconds: f32) -> Self {
+        Self {
+            raw_micro_seconds: (seconds * SECONDS_RATIO as f32) as i64,
         }
     }
 }

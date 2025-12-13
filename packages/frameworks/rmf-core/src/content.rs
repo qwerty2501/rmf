@@ -4,8 +4,8 @@ pub trait InnerContent {}
 
 pub struct Content<I> {
     item: I,
-    presentation_timestamp: Timestamp,
-    duration_timestamp: Timestamp,
+    offset: Timestamp,
+    duration: Timestamp,
 }
 
 impl<I> Content<I> {
@@ -16,17 +16,17 @@ impl<I> Content<I> {
         &mut self.item
     }
 
-    pub fn presentation_timestamp(&self) -> Timestamp {
-        self.presentation_timestamp
+    pub fn offset(&self) -> Timestamp {
+        self.offset
     }
-    pub fn duration_timestamp(&self) -> Timestamp {
-        self.duration_timestamp
+    pub fn duration(&self) -> Timestamp {
+        self.duration
     }
-    pub fn new(item: I, presentation_timestamp: Timestamp, duration_timestamp: Timestamp) -> Self {
+    pub fn new(item: I, offset: Timestamp, duration: Timestamp) -> Self {
         Self {
             item,
-            presentation_timestamp,
-            duration_timestamp,
+            offset,
+            duration,
         }
     }
 }
