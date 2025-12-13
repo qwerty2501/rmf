@@ -35,3 +35,4 @@ avframe
 swscale
 Backword
 Timestamp
+videoio
