@@ -1,4 +1,3 @@
-use dyn_clone::DynClone;
 use rmf_core::{Content, InnerContent, Timestamp};
 use rmf_static::{Audio, Image};
 
@@ -12,7 +11,7 @@ pub trait ContentCursorTrait {
     fn seek(&mut self, timestamp: Timestamp) -> Result<()>;
 }
 
-pub trait ContentStreamServiceTrait: ServiceTrait + DynClone {
+pub trait ContentStreamServiceTrait: ServiceTrait {
     type Item: InnerContent;
     type ContentCursor: ContentCursorTrait;
     fn duration(&self) -> Timestamp;
@@ -21,12 +20,8 @@ pub trait ContentStreamServiceTrait: ServiceTrait + DynClone {
 
 pub trait VideoContentStreamServiceTrait: ContentStreamServiceTrait<Item = Image> {}
 
-dyn_clone::clone_trait_object!(<C> VideoContentStreamServiceTrait<ContentCursor = C> where C:ContentCursorTrait);
-
 pub trait VideoInputServiceTrait: ContentStreamServiceTrait<Item = Image> {}
 
 pub trait AudioContentStreamServiceTrait: ContentStreamServiceTrait<Item = Audio> {}
 
 pub trait AudioInputServiceTrait: ContentStreamServiceTrait<Item = Audio> {}
-
-dyn_clone::clone_trait_object!(<C> AudioInputServiceTrait<ContentCursor = C> where C:ContentCursorTrait);

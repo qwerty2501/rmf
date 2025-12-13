@@ -552,7 +552,6 @@ name = "rmf-host"
 version = "0.1.0"
 dependencies = [
  "derive-new",
- "dyn-clone",
  "rmf-core",
  "rmf-static",
  "thiserror",
