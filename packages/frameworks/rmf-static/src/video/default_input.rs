@@ -1,4 +1,4 @@
-use rmf_core::{Timestamp, video::VideoContentCursor, video::VideoInput};
+use rmf_core::Timestamp;
 use rmf_macros::delegate_implements;
 
 use crate::{
