@@ -6,10 +6,9 @@ use rmf_macros::delegate_implements;
 use rsmpeg::{
     avcodec::AVCodecContext,
     avformat::AVFormatContextInput,
-    avutil::{AVFrame, AVMem, av_rescale_q},
+    avutil::{AVFrame, av_rescale_q},
     error::RsmpegError,
     ffi::{self, AV_TIME_BASE_Q, AVMEDIA_TYPE_AUDIO, AVRational, AVSEEK_FLAG_BACKWARD},
-    swscale::SwsContext,
 };
 
 use crate::{Audio, AudioDataContextBuilder};
