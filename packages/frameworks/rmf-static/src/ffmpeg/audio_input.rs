@@ -15,6 +15,7 @@ pub struct AVFormatAudioInput {
 impl AudioInput for AVFormatAudioInput {
     type Item = Audio;
     type ContentCursor = AVFormatAudioContentCursor;
+    #[inline]
     fn cursor(&self) -> Result<AVFormatAudioContentCursor> {
         AVFormatAudioContentCursor::try_new(make_input(&self.source)?)
     }
@@ -26,11 +27,13 @@ impl AVFormatAudioInput {
     }
 }
 
+#[inline]
 fn try_from_path_input(path: impl AsRef<Path>) -> Result<AVFormatContextInput> {
     let path = path.as_ref();
     AVFormatContextInput::open(&CString::new(path.as_os_str().as_bytes().to_vec()).unwrap())
         .map_err(|e| Error::new_input(e.into()))
 }
+#[inline]
 fn make_input(source: &InputSource) -> Result<AVFormatContextInput> {
     match source {
         InputSource::Path(path) => try_from_path_input(path),

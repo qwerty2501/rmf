@@ -11,12 +11,15 @@ pub struct DefaultVideoContentCursor(OpenCvVideoContentCursor);
 #[delegate_implements]
 impl rmf_core::video::VideoContentCursor for DefaultVideoContentCursor {
     type Item = Image;
+    #[inline]
     fn read(&mut self) -> rmf_core::Result<Option<rmf_core::Content<Image>>> {
         self.0.read()
     }
+    #[inline]
     fn fps(&self) -> u32 {
         self.0.fps()
     }
+    #[inline]
     fn seek(&mut self, timestamp: rmf_core::Timestamp) -> rmf_core::Result<()> {
         self.0.seek(timestamp)
     }
@@ -29,12 +32,15 @@ pub struct DefaultVideoInput(OpenCvVideoInput);
 impl rmf_core::video::VideoInput for DefaultVideoInput {
     type Item = Image;
     type ContentCursor = DefaultVideoContentCursor;
+    #[inline]
     fn fps(&self) -> u32 {
         self.0.fps()
     }
+    #[inline]
     fn duration(&self) -> Timestamp {
         self.0.duration()
     }
+    #[inline]
     fn cursor(&self) -> rmf_core::Result<DefaultVideoContentCursor> {
         Ok(DefaultVideoContentCursor(self.0.cursor()?))
     }
@@ -43,6 +49,7 @@ impl rmf_core::video::VideoInput for DefaultVideoInput {
 pub struct DefaultVideoInputProvider;
 
 impl DefaultVideoInputProvider {
+    #[inline]
     pub fn provide(source: rmf_core::InputSource) -> rmf_core::Result<DefaultVideoInput> {
         Ok(DefaultVideoInput(OpenCvVideoInput::try_new(source)?))
     }

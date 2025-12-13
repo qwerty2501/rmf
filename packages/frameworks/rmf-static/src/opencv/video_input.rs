@@ -29,6 +29,7 @@ pub struct OpenCvVideoContentCursor {
 #[delegate_implements]
 impl VideoContentCursor for OpenCvVideoContentCursor {
     type Item = Image;
+    #[inline]
     fn fps(&self) -> u32 {
         self.fps
     }
@@ -54,6 +55,7 @@ impl VideoContentCursor for OpenCvVideoContentCursor {
             Ok(None)
         }
     }
+    #[inline]
     fn seek(&mut self, timestamp: Timestamp) -> Result<()> {
         self.cap
             .set(

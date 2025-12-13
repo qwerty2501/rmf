@@ -13,6 +13,7 @@ impl rmf_core::InnerContent for Image {}
 
 #[delegate_implements]
 impl rmf_core::image::Image for Image {
+    #[inline]
     fn size(&self) -> Size {
         if let Ok(s) = self.mat.size() {
             Size {
@@ -23,6 +24,7 @@ impl rmf_core::image::Image for Image {
             Size::default()
         }
     }
+    #[inline]
     fn data_bytes(&self) -> &[u8] {
         if let Ok(data) = self.mat.data_bytes() {
             data
@@ -30,6 +32,7 @@ impl rmf_core::image::Image for Image {
             &[]
         }
     }
+    #[inline]
     fn new_size(size: Size, data: &[u8]) -> Result<Self> {
         let mat = unsafe {
             Mat::new_size_with_data_unsafe(
@@ -46,6 +49,7 @@ impl rmf_core::image::Image for Image {
 }
 
 impl Image {
+    #[inline]
     pub(crate) fn new(mat: Mat) -> Self {
         Self { mat }
     }

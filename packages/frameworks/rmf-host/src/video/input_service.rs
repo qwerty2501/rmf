@@ -23,6 +23,13 @@ enum ContextVideoContentCursor {
 
 impl rmf_core::video::VideoContentCursor for ContextVideoContentCursor {
     type Item = Image;
+
+    #[inline]
+    fn fps(&self) -> u32 {
+        match self {
+            Self::Default(d) => d.fps(),
+        }
+    }
     #[inline]
     fn read(&mut self) -> rmf_core::Result<Option<rmf_core::Content<Self::Item>>> {
         match self {
@@ -40,6 +47,12 @@ impl rmf_core::video::VideoContentCursor for ContextVideoContentCursor {
 impl rmf_core::video::VideoInput for ContextVideoInput {
     type Item = Image;
     type ContentCursor = ContextVideoContentCursor;
+    #[inline]
+    fn fps(&self) -> u32 {
+        match self {
+            Self::Default(d) => d.fps(),
+        }
+    }
     #[inline]
     fn duration(&self) -> rmf_core::Timestamp {
         match self {
