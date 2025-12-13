@@ -103,7 +103,11 @@ impl ContentStreamServiceTrait for VideoInputService {
     }
 }
 
-impl VideoContentStreamServiceTrait for VideoInputService {}
+impl VideoContentStreamServiceTrait for VideoInputService {
+    fn fps(&self) -> u32 {
+        self.inner.fps()
+    }
+}
 
 impl VideoInputServiceTrait for VideoInputService {}
 

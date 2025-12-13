@@ -18,7 +18,9 @@ pub trait ContentStreamServiceTrait: ServiceTrait {
     fn cursor(&self) -> Result<Self::ContentCursor>;
 }
 
-pub trait VideoContentStreamServiceTrait: ContentStreamServiceTrait<Item = Image> {}
+pub trait VideoContentStreamServiceTrait: ContentStreamServiceTrait<Item = Image> {
+    fn fps(&self) -> u32;
+}
 
 pub trait VideoInputServiceTrait: ContentStreamServiceTrait<Item = Image> {}
 
