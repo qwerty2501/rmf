@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 
-use rmf_core::Timestamp;
+use rmf_core::*;
 
 use crate::context::ContextVideoContentStreamService;
 use crate::image::Image;
@@ -32,10 +32,10 @@ pub struct VideoTrackContentCursor {}
 
 impl ContentCursorTrait for VideoTrackContentCursor {
     type Item = Image;
-    fn read(&mut self) -> crate::Result<Option<rmf_core::Content<Self::Item>>> {
+    fn read(&mut self) -> crate::Result<Option<Content<Self::Item>>> {
         unimplemented!()
     }
-    fn seek(&mut self, timestamp: rmf_core::Timestamp) -> crate::Result<()> {
+    fn seek(&mut self, timestamp: Timestamp) -> crate::Result<()> {
         unimplemented!()
     }
 }
