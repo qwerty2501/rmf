@@ -8,9 +8,7 @@ use rsmpeg::{
     avformat::AVFormatContextInput,
     avutil::{AVFrame, AVMem, av_rescale_q},
     error::RsmpegError,
-    ffi::{
-        self, AV_TIME_BASE_Q, AVMEDIA_TYPE_AUDIO, AVRational, AVSEEK_FLAG_BACKWARD,
-    },
+    ffi::{self, AV_TIME_BASE_Q, AVMEDIA_TYPE_AUDIO, AVRational, AVSEEK_FLAG_BACKWARD},
     swscale::SwsContext,
 };
 
