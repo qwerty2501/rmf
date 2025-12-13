@@ -5,8 +5,9 @@ use rmf_core::*;
 use crate::context::ContextVideoContentStreamService;
 use crate::image::Image;
 
-use crate::service::{ContentCursorTrait, ServiceTrait};
-use crate::service::{ContentStreamServiceTrait, VideoContentStreamServiceTrait};
+use crate::service::{
+    ContentCursorTrait, ContentStreamServiceTrait, ServiceTrait, VideoContentStreamServiceTrait,
+};
 
 #[derive(Clone)]
 struct ContentRange {
