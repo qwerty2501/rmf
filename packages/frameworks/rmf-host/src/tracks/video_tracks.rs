@@ -18,6 +18,9 @@ impl ContentRange {
     fn offset(&self) -> Timestamp {
         self.offset
     }
+    fn duration(&self) -> Timestamp {
+        self.content.duration()
+    }
 }
 
 #[derive(Clone)]
@@ -44,7 +47,7 @@ impl ContentStreamServiceTrait for VideoTrack {
     type ContentCursor = VideoTrackContentCursor;
     fn duration(&self) -> Timestamp {
         if let Some(c) = self.sequence.iter().last() {
-            c.offset + c.content.duration()
+            c.offset + c.duration()
         } else {
             Timestamp::default()
         }
