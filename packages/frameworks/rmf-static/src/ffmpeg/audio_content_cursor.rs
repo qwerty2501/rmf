@@ -25,12 +25,6 @@ struct AVFormatContentContexts {
     index: usize,
 }
 
-struct ImageScaleContext {
-    sws_context: SwsContext,
-    frame_cache: AVFrame,
-    buffer: AVMem,
-}
-
 impl AVFormatAudioContentCursor {
     pub fn try_new(input: AVFormatContextInput) -> Result<Self> {
         let audio_context = input_contexts(&input, AVMEDIA_TYPE_AUDIO)?
