@@ -1,35 +1,14 @@
 use std::{ffi::CString, os::unix::ffi::OsStrExt, path::Path};
 
-use rmf_core::{Error, InputSource, Result, Timestamp, audio::AudioInput, video::VideoInput};
+use rmf_core::{Error, InputSource, Result, audio::AudioInput};
 use rmf_macros::delegate_implements;
 use rsmpeg::avformat::AVFormatContextInput;
 
-use crate::{
-    Audio, Image,
-    ffmpeg::{AVFormatAudioContentCursor, AVFormatVideoContentCursor},
-};
-
-#[derive(Clone)]
-pub struct AVFormatVideoInput {
-    source: InputSource,
-    duration: Timestamp,
-}
+use crate::{Audio, ffmpeg::AVFormatAudioContentCursor};
 
 #[derive(Clone)]
 pub struct AVFormatAudioInput {
     source: InputSource,
-}
-
-#[delegate_implements]
-impl VideoInput for AVFormatVideoInput {
-    type Item = Image;
-    type ContentCursor = AVFormatVideoContentCursor;
-    fn duration(&self) -> Timestamp {
-        self.duration
-    }
-    fn cursor(&self) -> Result<AVFormatVideoContentCursor> {
-        AVFormatVideoContentCursor::try_new(make_input(&self.source)?)
-    }
 }
 
 #[delegate_implements]
@@ -38,19 +17,6 @@ impl AudioInput for AVFormatAudioInput {
     type ContentCursor = AVFormatAudioContentCursor;
     fn cursor(&self) -> Result<AVFormatAudioContentCursor> {
         AVFormatAudioContentCursor::try_new(make_input(&self.source)?)
-    }
-}
-
-impl AVFormatVideoInput {
-    pub fn try_new(source: InputSource) -> Result<Self> {
-        let input = match &source {
-            InputSource::Path(path) => try_from_path_input(path),
-        }?;
-
-        Ok(Self {
-            source,
-            duration: Timestamp::from_microseconds(input.duration),
-        })
     }
 }
 

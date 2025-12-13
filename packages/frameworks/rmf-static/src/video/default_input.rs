@@ -3,10 +3,10 @@ use rmf_macros::delegate_implements;
 
 use crate::{
     Image,
-    ffmpeg::{AVFormatVideoContentCursor, AVFormatVideoInput},
+    opencv::{OpenCvVideoContentCursor, OpenCvVideoInput},
 };
 
-pub struct DefaultVideoContentCursor(AVFormatVideoContentCursor);
+pub struct DefaultVideoContentCursor(OpenCvVideoContentCursor);
 
 #[delegate_implements]
 impl rmf_core::video::VideoContentCursor for DefaultVideoContentCursor {
@@ -20,7 +20,7 @@ impl rmf_core::video::VideoContentCursor for DefaultVideoContentCursor {
 }
 
 #[derive(Clone)]
-pub struct DefaultVideoInput(AVFormatVideoInput);
+pub struct DefaultVideoInput(OpenCvVideoInput);
 
 #[delegate_implements]
 impl rmf_core::video::VideoInput for DefaultVideoInput {
@@ -38,6 +38,6 @@ pub struct DefaultVideoInputProvider;
 
 impl DefaultVideoInputProvider {
     pub fn provide(source: rmf_core::InputSource) -> rmf_core::Result<DefaultVideoInput> {
-        Ok(DefaultVideoInput(AVFormatVideoInput::try_new(source)?))
+        Ok(DefaultVideoInput(OpenCvVideoInput::try_new(source)?))
     }
 }

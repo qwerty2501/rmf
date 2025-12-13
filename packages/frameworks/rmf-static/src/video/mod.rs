@@ -1,2 +1,2 @@
-mod input_service;
-pub use input_service::*;
+mod default_input;
+pub use default_input::*;
