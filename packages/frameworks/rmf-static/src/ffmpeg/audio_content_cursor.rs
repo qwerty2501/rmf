@@ -9,13 +9,12 @@ use rsmpeg::{
     avutil::{AVFrame, AVMem, av_rescale_q},
     error::RsmpegError,
     ffi::{
-        self, AV_PIX_FMT_BGR24, AV_TIME_BASE_Q, AVMEDIA_TYPE_AUDIO, AVMEDIA_TYPE_VIDEO,
-        AVPixelFormat, AVRational, AVSEEK_FLAG_BACKWARD, SWS_BICUBIC, av_image_get_buffer_size,
+        self, AV_TIME_BASE_Q, AVMEDIA_TYPE_AUDIO, AVRational, AVSEEK_FLAG_BACKWARD,
     },
     swscale::SwsContext,
 };
 
-use crate::{Audio, AudioDataContextBuilder, Image};
+use crate::{Audio, AudioDataContextBuilder};
 
 pub struct AVFormatAudioContentCursor {
     input: AVFormatContextInput,
