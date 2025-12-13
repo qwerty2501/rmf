@@ -1,10 +1,4 @@
-use opencv::{
-    core::Mat,
-    videoio::{
-        CAP_ANY, CAP_PROP_FPS, CAP_PROP_FRAME_COUNT, CAP_PROP_POS_FRAMES, VideoCapture,
-        VideoCaptureTrait, VideoCaptureTraitConst, prelude::*,
-    },
-};
+use opencv::{prelude::*, videoio::*};
 use rmf_core::{
     Error, InputSource, Result, Timestamp,
     video::{VideoContentCursor, VideoInput},
