@@ -5,6 +5,7 @@ use crate::{Content, Result, Timestamp, image::Image};
 pub trait VideoContentCursor {
     type Item: Image;
     fn read(&mut self) -> Result<Option<Content<Self::Item>>>;
+    fn fps(&self) -> u32;
     fn seek(&mut self, timestamp: Timestamp) -> Result<()>;
 }
 
@@ -12,6 +13,7 @@ pub trait VideoInput: DynClone {
     type Item: Image;
     type ContentCursor: VideoContentCursor;
     fn duration(&self) -> Timestamp;
+    fn fps(&self) -> u32;
     fn cursor(&self) -> Result<Self::ContentCursor>;
 }
 

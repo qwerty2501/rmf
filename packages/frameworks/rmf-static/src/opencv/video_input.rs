@@ -29,6 +29,9 @@ pub struct OpenCvVideoContentCursor {
 #[delegate_implements]
 impl VideoContentCursor for OpenCvVideoContentCursor {
     type Item = Image;
+    fn fps(&self) -> u32 {
+        self.fps
+    }
     fn read(&mut self) -> Result<Option<rmf_core::Content<Image>>> {
         let mut mat = Mat::default();
         let offset = Timestamp::from_seconds_float64(
@@ -83,6 +86,9 @@ impl OpenCvVideoInput {
 impl VideoInput for OpenCvVideoInput {
     type Item = Image;
     type ContentCursor = OpenCvVideoContentCursor;
+    fn fps(&self) -> u32 {
+        self.fps
+    }
     fn cursor(&self) -> Result<OpenCvVideoContentCursor> {
         let cap = try_from_source(&self.source)?;
         Ok(OpenCvVideoContentCursor { cap, fps: self.fps })

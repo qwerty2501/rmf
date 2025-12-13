@@ -1,4 +1,4 @@
-use rmf_core::Timestamp;
+use rmf_core::{Timestamp, video::VideoContentCursor, video::VideoInput};
 use rmf_macros::delegate_implements;
 
 use crate::{
@@ -14,6 +14,9 @@ impl rmf_core::video::VideoContentCursor for DefaultVideoContentCursor {
     fn read(&mut self) -> rmf_core::Result<Option<rmf_core::Content<Image>>> {
         self.0.read()
     }
+    fn fps(&self) -> u32 {
+        self.0.fps()
+    }
     fn seek(&mut self, timestamp: rmf_core::Timestamp) -> rmf_core::Result<()> {
         self.0.seek(timestamp)
     }
@@ -26,6 +29,9 @@ pub struct DefaultVideoInput(OpenCvVideoInput);
 impl rmf_core::video::VideoInput for DefaultVideoInput {
     type Item = Image;
     type ContentCursor = DefaultVideoContentCursor;
+    fn fps(&self) -> u32 {
+        self.0.fps()
+    }
     fn duration(&self) -> Timestamp {
         self.0.duration()
     }
