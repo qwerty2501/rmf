@@ -16,9 +16,11 @@ struct ContentRange {
 }
 
 impl ContentRange {
+    #[inline]
     fn offset(&self) -> Timestamp {
         self.offset
     }
+    #[inline]
     fn duration(&self) -> Timestamp {
         self.content.duration()
     }
@@ -48,7 +50,7 @@ impl ContentStreamServiceTrait for VideoTrack {
     type ContentCursor = VideoTrackContentCursor;
     fn duration(&self) -> Timestamp {
         if let Some(c) = self.sequence.iter().last() {
-            c.offset + c.duration()
+            c.offset() + c.duration()
         } else {
             Timestamp::default()
         }
