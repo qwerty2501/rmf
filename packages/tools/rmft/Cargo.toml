@@ -7,5 +7,5 @@ license-file.workspace = true
 
 [dependencies]
 anyhow.workspace = true
-iced = { version = "0.14.0", features = ["canvas", "image"] }
+iced = { version = "0.14.0", features = ["canvas", "image", "tokio"] }
 rmf-host = { path = "../../frameworks/rmf-host" }

@@ -1,1 +1,1 @@
-pub use rmf_core::InputSource;
+pub use rmf_core::{Content, InputSource, Timestamp};

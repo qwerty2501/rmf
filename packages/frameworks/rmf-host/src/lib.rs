@@ -3,7 +3,7 @@ mod core;
 mod error;
 pub mod image;
 mod result;
-mod service;
+pub mod service;
 pub mod tracks;
 pub mod video;
 
