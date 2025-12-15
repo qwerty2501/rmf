@@ -1,8 +1,10 @@
 use crate::image::Image;
+use rmf_core::InputSource;
 use rmf_core::video::VideoContentCursor as _;
 use rmf_core::video::VideoInput as _;
 use rmf_static::video::DefaultVideoContentCursor;
 use rmf_static::video::DefaultVideoInput;
+use rmf_static::video::DefaultVideoInputProvider;
 
 use crate::{
     Result,
@@ -116,5 +118,11 @@ impl From<DefaultVideoInput> for VideoInputService {
         VideoInputService {
             inner: ContextVideoInput::Default(value),
         }
+    }
+}
+
+impl VideoInputService {
+    pub fn try_new(source: InputSource) -> Result<Self> {
+        Ok(Self::from(DefaultVideoInputProvider::provide(source)?))
     }
 }

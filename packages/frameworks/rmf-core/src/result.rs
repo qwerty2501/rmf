@@ -3,11 +3,11 @@ use derive_new::new;
 #[derive(thiserror::Error, Debug, new)]
 pub enum Error {
     #[error("image error {0}")]
-    Image(Box<dyn std::error::Error>),
+    Image(anyhow::Error),
     #[error("audio error {0}")]
-    Audio(Box<dyn std::error::Error>),
+    Audio(anyhow::Error),
     #[error("input error {0}")]
-    Input(Box<dyn std::error::Error>),
+    Input(anyhow::Error),
     #[error("end of file")]
     Eof,
 }

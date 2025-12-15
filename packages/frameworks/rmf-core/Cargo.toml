@@ -14,3 +14,4 @@ pretty_assertions.workspace = true
 derive-new.workspace = true
 dyn-clone.workspace = true
 thiserror.workspace = true
+anyhow.workspace = true
