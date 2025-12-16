@@ -4,7 +4,11 @@ use anyhow::anyhow;
 use rmf_core::{Content, Error, Result, Size, Timestamp, video::VideoContentCursor};
 use rmf_macros::delegate_implements;
 use rsmpeg::{
-    avformat::AVFormatContextInput, avutil::AVFrame, error::RsmpegError, ffi::AVMEDIA_TYPE_VIDEO,
+    avformat::AVFormatContextInput,
+    avutil::{AVFrame, AVMem},
+    error::RsmpegError,
+    ffi::{AV_PIX_FMT_RGBA, AVMEDIA_TYPE_VIDEO, SWS_BICUBIC, av_image_get_buffer_size},
+    swscale::SwsContext,
 };
 
 use crate::{
@@ -15,22 +19,73 @@ use crate::{
 pub struct AVFormatVideoContentCursor {
     input: AVFormatContextInput,
     video_context: AVFormatContentContexts,
+    scale_context: Option<ScaleContext>,
     video_cache: VecDeque<Content<Image>>,
     fps: f64,
+}
+struct ScaleContext {
+    sws_context: SwsContext,
+    frame_rgba: AVFrame,
+    mem: AVMem,
 }
 
 impl AVFormatVideoContentCursor {
     pub fn try_new(input: AVFormatContextInput, fps: f64) -> Result<Self> {
         let video_context = input_contexts(&input, AVMEDIA_TYPE_VIDEO)?
             .ok_or_else(|| Error::new_input(anyhow!("Can not make input context")))?;
+
+        let scale_context = if video_context.avcodec_context.pix_fmt == AV_PIX_FMT_RGBA {
+            None
+        } else {
+            let sws_context = SwsContext::get_context(
+                video_context.avcodec_context.width,
+                video_context.avcodec_context.height,
+                video_context.avcodec_context.pix_fmt,
+                video_context.avcodec_context.width,
+                video_context.avcodec_context.height,
+                AV_PIX_FMT_RGBA,
+                SWS_BICUBIC,
+                None,
+                None,
+                None,
+            )
+            .ok_or_else(|| Error::new_video(anyhow!("Can't get sws context")))?;
+            let mut frame_rgba = AVFrame::default();
+            let buffer_size = unsafe {
+                av_image_get_buffer_size(
+                    AV_PIX_FMT_RGBA,
+                    video_context.avcodec_context.width,
+                    video_context.avcodec_context.height,
+                    1,
+                )
+            };
+            let mem = AVMem::new(buffer_size as _);
+            unsafe {
+                frame_rgba.fill_arrays(
+                    mem.as_ptr(),
+                    AV_PIX_FMT_RGBA,
+                    video_context.avcodec_context.width,
+                    video_context.avcodec_context.height,
+                )
+            }
+            .map_err(|e| Error::new_video(e.into()))?;
+
+            Some(ScaleContext {
+                sws_context,
+                mem,
+                frame_rgba,
+            })
+        };
+
         Ok(Self {
             input,
             video_context,
+            scale_context,
             video_cache: VecDeque::default(),
             fps,
         })
     }
-    fn avframe_to_image(frame: AVFrame) -> Result<Image> {
+    fn avframe_to_image(frame: &AVFrame) -> Result<Image> {
         let data = unsafe { slice::from_raw_parts(frame.data[0], frame.linesize[0] as _) };
         Image::new_size(Size::new(frame.width as _, frame.height as _), data)
     }
@@ -64,6 +119,20 @@ impl VideoContentCursor for AVFormatVideoContentCursor {
                                     to_timestamp(frame.pts, frame.time_base);
                                 let duration_timestamp =
                                     to_timestamp(frame.duration, frame.time_base);
+                                let frame = if let Some(scale_context) = &mut self.scale_context {
+                                    scale_context
+                                        .sws_context
+                                        .scale_frame(
+                                            &frame,
+                                            0,
+                                            frame.height,
+                                            &mut scale_context.frame_rgba,
+                                        )
+                                        .map_err(|e| Error::new_video(e.into()))?;
+                                    &scale_context.frame_rgba
+                                } else {
+                                    &frame
+                                };
                                 let image = Self::avframe_to_image(frame)?;
                                 self.video_cache.push_back(Content::new(
                                     image,
