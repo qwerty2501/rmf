@@ -71,7 +71,7 @@ impl ContentStreamServiceTrait for ContextVideoContentStreamService {
 }
 
 impl VideoContentStreamServiceTrait for ContextVideoContentStreamService {
-    fn fps(&self) -> u32 {
+    fn fps(&self) -> f64 {
         match self {
             ContextVideoContentStreamService::VideoTrack(t) => t.fps(),
             ContextVideoContentStreamService::VideoInputService(i) => i.fps(),

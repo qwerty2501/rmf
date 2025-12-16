@@ -3,7 +3,7 @@ use derive_new::new;
 #[derive(thiserror::Error, Debug, new)]
 pub enum Error {
     #[error("image error {0}")]
-    Image(anyhow::Error),
+    Video(anyhow::Error),
     #[error("audio error {0}")]
     Audio(anyhow::Error),
     #[error("input error {0}")]

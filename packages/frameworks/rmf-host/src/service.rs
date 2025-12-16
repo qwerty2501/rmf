@@ -19,7 +19,7 @@ pub trait ContentStreamServiceTrait: ServiceTrait {
 }
 
 pub trait VideoContentStreamServiceTrait: ContentStreamServiceTrait<Item = Image> {
-    fn fps(&self) -> u32;
+    fn fps(&self) -> f64;
 }
 
 pub trait VideoInputServiceTrait: ContentStreamServiceTrait<Item = Image> {}

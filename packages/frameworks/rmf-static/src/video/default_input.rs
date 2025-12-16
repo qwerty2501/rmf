@@ -3,10 +3,10 @@ use rmf_macros::delegate_implements;
 
 use crate::{
     Image,
-    opencv::{OpenCvVideoContentCursor, OpenCvVideoInput},
+    ffmpeg::{AVFormatVideoContentCursor, AVFormatVideoInput},
 };
 
-pub struct DefaultVideoContentCursor(OpenCvVideoContentCursor);
+pub struct DefaultVideoContentCursor(AVFormatVideoContentCursor);
 
 #[delegate_implements]
 impl rmf_core::video::VideoContentCursor for DefaultVideoContentCursor {
@@ -16,7 +16,7 @@ impl rmf_core::video::VideoContentCursor for DefaultVideoContentCursor {
         self.0.read()
     }
     #[inline]
-    fn fps(&self) -> u32 {
+    fn fps(&self) -> f64 {
         self.0.fps()
     }
     #[inline]
@@ -26,14 +26,14 @@ impl rmf_core::video::VideoContentCursor for DefaultVideoContentCursor {
 }
 
 #[derive(Clone)]
-pub struct DefaultVideoInput(OpenCvVideoInput);
+pub struct DefaultVideoInput(AVFormatVideoInput);
 
 #[delegate_implements]
 impl rmf_core::video::VideoInput for DefaultVideoInput {
     type Item = Image;
     type ContentCursor = DefaultVideoContentCursor;
     #[inline]
-    fn fps(&self) -> u32 {
+    fn fps(&self) -> f64 {
         self.0.fps()
     }
     #[inline]
@@ -51,6 +51,6 @@ pub struct DefaultVideoInputProvider;
 impl DefaultVideoInputProvider {
     #[inline]
     pub fn provide(source: rmf_core::InputSource) -> rmf_core::Result<DefaultVideoInput> {
-        Ok(DefaultVideoInput(OpenCvVideoInput::try_new(source)?))
+        Ok(DefaultVideoInput(AVFormatVideoInput::try_new(source)?))
     }
 }

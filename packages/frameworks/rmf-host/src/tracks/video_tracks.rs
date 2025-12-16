@@ -61,7 +61,7 @@ impl ContentStreamServiceTrait for VideoTrack {
 }
 
 impl VideoContentStreamServiceTrait for VideoTrack {
-    fn fps(&self) -> u32 {
+    fn fps(&self) -> f64 {
         unimplemented!()
     }
 }

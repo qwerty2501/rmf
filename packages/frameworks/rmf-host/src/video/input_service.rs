@@ -27,7 +27,7 @@ impl rmf_core::video::VideoContentCursor for ContextVideoContentCursor {
     type Item = Image;
 
     #[inline]
-    fn fps(&self) -> u32 {
+    fn fps(&self) -> f64 {
         match self {
             Self::Default(d) => d.fps(),
         }
@@ -50,7 +50,7 @@ impl rmf_core::video::VideoInput for ContextVideoInput {
     type Item = Image;
     type ContentCursor = ContextVideoContentCursor;
     #[inline]
-    fn fps(&self) -> u32 {
+    fn fps(&self) -> f64 {
         match self {
             Self::Default(d) => d.fps(),
         }
@@ -106,7 +106,7 @@ impl ContentStreamServiceTrait for VideoInputService {
 }
 
 impl VideoContentStreamServiceTrait for VideoInputService {
-    fn fps(&self) -> u32 {
+    fn fps(&self) -> f64 {
         self.inner.fps()
     }
 }

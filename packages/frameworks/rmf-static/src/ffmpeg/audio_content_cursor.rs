@@ -11,7 +11,10 @@ use rsmpeg::{
     ffi::{self, AV_TIME_BASE_Q, AVMEDIA_TYPE_AUDIO, AVRational, AVSEEK_FLAG_BACKWARD},
 };
 
-use crate::{Audio, AudioDataContextBuilder};
+use crate::{
+    Audio, AudioDataContextBuilder,
+    ffmpeg::utils::{AVFormatContentContexts, input_contexts, seek_input, to_timestamp},
+};
 
 pub struct AVFormatAudioContentCursor {
     input: AVFormatContextInput,
@@ -19,15 +22,10 @@ pub struct AVFormatAudioContentCursor {
     audio_cache: VecDeque<Content<Audio>>,
 }
 
-struct AVFormatContentContexts {
-    avcodec_context: AVCodecContext,
-    index: usize,
-}
-
 impl AVFormatAudioContentCursor {
     pub fn try_new(input: AVFormatContextInput) -> Result<Self> {
         let audio_context = input_contexts(&input, AVMEDIA_TYPE_AUDIO)?
-            .ok_or_else(|| Error::new_audio(anyhow!("Can not make input context").into()))?;
+            .ok_or_else(|| Error::new_input(anyhow!("Can not make input context")))?;
         Ok(Self {
             input,
             audio_context,
@@ -50,13 +48,13 @@ impl rmf_core::audio::AudioContentCursor for AVFormatAudioContentCursor {
             while let Some(packet) = self
                 .input
                 .read_packet()
-                .map_err(|e| Error::new_image(e.into()))?
+                .map_err(|e| Error::new_audio(e.into()))?
             {
                 if packet.stream_index == self.audio_context.index as _ {
                     self.audio_context
                         .avcodec_context
                         .send_packet(Some(&packet))
-                        .map_err(|e| Error::new_image(e.into()))?;
+                        .map_err(|e| Error::new_audio(e.into()))?;
                     loop {
                         match self.audio_context.avcodec_context.receive_frame() {
                             Ok(frame) => {
@@ -77,7 +75,7 @@ impl rmf_core::audio::AudioContentCursor for AVFormatAudioContentCursor {
                                 {
                                     break;
                                 } else {
-                                    Err(Error::new_image(err.into()))?
+                                    Err(Error::new_input(err.into()))?
                                 }
                             }
                         }
@@ -91,35 +89,4 @@ impl rmf_core::audio::AudioContentCursor for AVFormatAudioContentCursor {
     fn seek(&mut self, timestamp: Timestamp) -> Result<()> {
         seek_input(&mut self.input, timestamp)
     }
-}
-
-#[inline]
-fn seek_input(input: &mut AVFormatContextInput, timestamp: Timestamp) -> Result<()> {
-    input
-        .seek(-1, timestamp.as_microseconds(), AVSEEK_FLAG_BACKWARD as _)
-        .map_err(|e| Error::new_image(e.into()))
-}
-
-#[inline]
-fn input_contexts(
-    input: &AVFormatContextInput,
-    media_type: ffi::AVMediaType,
-) -> Result<Option<AVFormatContentContexts>> {
-    if let Some((index, avcodec)) = input
-        .find_best_stream(media_type)
-        .map_err(|e| Error::new_image(e.into()))?
-    {
-        let avcodec_context = AVCodecContext::new(&avcodec);
-        Ok(Some(AVFormatContentContexts {
-            avcodec_context,
-            index,
-        }))
-    } else {
-        Ok(None)
-    }
-}
-
-#[inline]
-fn to_timestamp(ts: i64, time_base: AVRational) -> Timestamp {
-    Timestamp::from_microseconds(av_rescale_q(ts, time_base, AV_TIME_BASE_Q))
 }

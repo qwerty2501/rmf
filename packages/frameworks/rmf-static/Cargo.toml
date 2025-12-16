@@ -9,17 +9,17 @@ license-file.workspace = true
 default = ["default_link_system_dependencies"]
 default_link_static_dependencies = ["general_features"]
 default_link_system_dependencies = ["general_features", "link_system_ffmpeg"]
-general_features = ["opencv_image_as_default", "ffmpeg_audio_as_default"]
+general_features = ["photon_image_as_default", "ffmpeg_audio_as_default"]
 ffmpeg_audio_as_default = ["use_ffmpeg"]
 use_ffmpeg = ["dep:rsmpeg", "dep:rusty_ffmpeg"]
 link_system_ffmpeg = ["rusty_ffmpeg/link_system_ffmpeg"]
-opencv_image_as_default = ["use_opencv"]
-use_opencv = ["dep:opencv"]
+photon_image_as_default = ["use_photon"]
+use_photon = ["dep:photon-rs"]
 
 [dependencies]
 anyhow.workspace = true
 derive-new.workspace = true
-opencv = { version = "0.97.2", optional = true, features = ["clang-runtime"] }
+photon-rs = { version = "0.3.3", optional = true }
 rmf-core = { path = "../rmf-core" }
 rmf-macros = { path = "../rmf-macros" }
 rsmpeg = { version = "0.18.0", optional = true }

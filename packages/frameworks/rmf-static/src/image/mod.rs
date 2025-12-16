@@ -1,5 +1,5 @@
-#[cfg(feature = "use_opencv")]
-pub mod opencv_image;
+#[cfg(feature = "use_photon")]
+pub mod photon_image;
 
-#[cfg(feature = "opencv_image_as_default")]
-pub use opencv_image::*;
+#[cfg(feature = "photon_image_as_default")]
+pub use photon_image::*;

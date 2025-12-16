@@ -3,6 +3,6 @@ use derive_new::new;
 #[repr(C)]
 #[derive(new, Default)]
 pub struct Size {
-    pub height: usize,
-    pub width: usize,
+    pub height: u32,
+    pub width: u32,
 }

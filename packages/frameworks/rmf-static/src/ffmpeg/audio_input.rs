@@ -1,10 +1,10 @@
-use std::{ffi::CString, os::unix::ffi::OsStrExt, path::Path};
-
-use rmf_core::{Error, InputSource, Result, audio::AudioInput};
+use rmf_core::{InputSource, Result, audio::AudioInput};
 use rmf_macros::delegate_implements;
-use rsmpeg::avformat::AVFormatContextInput;
 
-use crate::{Audio, ffmpeg::AVFormatAudioContentCursor};
+use crate::{
+    Audio,
+    ffmpeg::{AVFormatAudioContentCursor, utils::make_input},
+};
 
 #[derive(Clone)]
 pub struct AVFormatAudioInput {
@@ -24,18 +24,5 @@ impl AudioInput for AVFormatAudioInput {
 impl AVFormatAudioInput {
     pub fn new(source: InputSource) -> Self {
         Self { source }
-    }
-}
-
-#[inline]
-fn try_from_path_input(path: impl AsRef<Path>) -> Result<AVFormatContextInput> {
-    let path = path.as_ref();
-    AVFormatContextInput::open(&CString::new(path.as_os_str().as_bytes().to_vec()).unwrap())
-        .map_err(|e| Error::new_input(e.into()))
-}
-#[inline]
-fn make_input(source: &InputSource) -> Result<AVFormatContextInput> {
-    match source {
-        InputSource::Path(path) => try_from_path_input(path),
     }
 }
