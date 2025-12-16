@@ -2,9 +2,9 @@ use std::path::PathBuf;
 
 use anyhow::Result;
 use iced::{
-    Renderer, Subscription, mouse,
+    Subscription, mouse,
     time::{self, milliseconds},
-    widget::{image::Handle, shader},
+    widget::shader,
 };
 use rmf_host::{
     Content, InputSource, Timestamp,

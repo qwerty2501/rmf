@@ -1,4 +1,3 @@
-use std::path::Path;
 
 use anyhow::anyhow;
 use rmf_core::{
@@ -6,10 +5,7 @@ use rmf_core::{
     video::{VideoContentCursor, VideoInput},
 };
 use rmf_macros::delegate_implements;
-use rsmpeg::{
-    avcodec::AVCodecRef,
-    ffi::{AVMEDIA_TYPE_VIDEO, av_q2d},
-};
+use rsmpeg::ffi::{AVMEDIA_TYPE_VIDEO, av_q2d};
 
 use crate::{
     Image,

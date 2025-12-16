@@ -4,11 +4,10 @@ use anyhow::anyhow;
 use rmf_core::{Content, Error, Result, Timestamp};
 use rmf_macros::delegate_implements;
 use rsmpeg::{
-    avcodec::AVCodecContext,
     avformat::AVFormatContextInput,
-    avutil::{AVFrame, av_rescale_q},
+    avutil::AVFrame,
     error::RsmpegError,
-    ffi::{self, AV_TIME_BASE_Q, AVMEDIA_TYPE_AUDIO, AVRational, AVSEEK_FLAG_BACKWARD},
+    ffi::AVMEDIA_TYPE_AUDIO,
 };
 
 use crate::{
