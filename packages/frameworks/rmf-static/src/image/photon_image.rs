@@ -10,7 +10,7 @@ impl rmf_core::InnerContent for Image {}
 #[delegate_implements]
 impl rmf_core::image::Image for Image {
     fn data_bytes(&self) -> Vec<u8> {
-        self.inner.get_bytes()
+        self.inner.get_raw_pixels()
     }
     fn size(&self) -> rmf_core::Size {
         rmf_core::Size {
