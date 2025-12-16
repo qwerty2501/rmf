@@ -4,10 +4,7 @@ use anyhow::Result;
 use iced::{
     Renderer, Subscription, mouse,
     time::{self, milliseconds},
-    widget::{
-        canvas::{self, Frame},
-        image::Handle,
-    },
+    widget::{image::Handle, shader},
 };
 use rmf_host::{
     Content, InputSource, Timestamp,
@@ -19,7 +16,6 @@ use rmf_host::{
 pub struct App {
     cursor: VideoInputContentCursor,
     current_content: Option<Content<Image>>,
-    cache: canvas::Cache,
 }
 
 pub enum Message {
@@ -31,7 +27,6 @@ impl App {
         Ok(Self {
             cursor: VideoInputService::try_new(InputSource::new_path(path))?.cursor()?,
             current_content: None,
-            cache: canvas::Cache::default(),
         })
     }
     fn read_content(&mut self) -> Option<Content<Image>> {
@@ -67,29 +62,50 @@ impl App {
     }
 }
 
-impl<Message> canvas::Program<Message> for App {
+impl<Message> shader::Program<Message> for App {
     type State = ();
-    fn update(
+    type Primitive = Primitive;
+    fn draw(
         &self,
-        _state: &mut Self::State,
-        _event: &iced::Event,
-        _bounds: iced::Rectangle,
-        _cursor: mouse::Cursor,
-    ) -> Option<canvas::Action<Message>> {
+        state: &Self::State,
+        cursor: mouse::Cursor,
+        bounds: iced::Rectangle,
+    ) -> Self::Primitive {
+        unimplemented!()
+    }
+}
+#[derive(Debug)]
+pub struct Primitive {}
+
+impl shader::Primitive for Primitive {
+    type Pipeline = Pipeline;
+    fn prepare(
+        &self,
+        pipeline: &mut Self::Pipeline,
+        device: &iced::wgpu::Device,
+        queue: &iced::wgpu::Queue,
+        bounds: &iced::Rectangle,
+        viewport: &shader::Viewport,
+    ) {
         unimplemented!()
     }
     fn draw(
         &self,
-        state: &Self::State,
-        renderer: &Renderer,
-        theme: &iced::Theme,
-        bounds: iced::Rectangle,
-        cursor: mouse::Cursor,
-    ) -> Vec<canvas::Geometry> {
-        let ret = self.cache.draw(renderer, bounds.size(), |frame| {
-            let image = iced::widget::Image::new(Handle::from_bytes(unimplemented!()));
-            frame.draw_image(bounds, image.into());
-        });
-        vec![ret]
+        _pipeline: &Self::Pipeline,
+        _render_pass: &mut iced::wgpu::RenderPass<'_>,
+    ) -> bool {
+        unimplemented!()
+    }
+}
+
+pub struct Pipeline {}
+
+impl iced::widget::shader::Pipeline for Pipeline {
+    fn new(
+        device: &iced::wgpu::Device,
+        queue: &iced::wgpu::Queue,
+        format: iced::wgpu::TextureFormat,
+    ) -> Self {
+        unimplemented!()
     }
 }
