@@ -3637,6 +3637,7 @@ dependencies = [
  "anyhow",
  "iced",
  "rmf-host",
+ "tokio",
 ]
 
 [[package]]
