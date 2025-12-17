@@ -1,4 +1,3 @@
-
 use anyhow::anyhow;
 use rmf_core::{
     Error, InputSource, Result, Timestamp,
