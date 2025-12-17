@@ -11,6 +11,7 @@ fn main() -> iced::Result {
         move || VideoPlayer::new(video_path.clone()),
         VideoPlayer::update,
         VideoPlayer::view,
-    );
+    )
+    .subscription(VideoPlayer::subscription);
     app.run()
 }

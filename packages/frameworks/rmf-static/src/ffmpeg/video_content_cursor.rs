@@ -26,7 +26,6 @@ pub struct AVFormatVideoContentCursor {
 struct ScaleContext {
     sws_context: SwsContext,
     frame_rgba: AVFrame,
-    mem: AVMem,
 }
 
 impl AVFormatVideoContentCursor {
@@ -51,28 +50,13 @@ impl AVFormatVideoContentCursor {
             )
             .ok_or_else(|| Error::new_video(anyhow!("Can't get sws context")))?;
             let mut frame_rgba = AVFrame::default();
-            let buffer_size = unsafe {
-                av_image_get_buffer_size(
-                    AV_PIX_FMT_RGBA,
-                    video_context.avcodec_context.width,
-                    video_context.avcodec_context.height,
-                    1,
-                )
-            };
-            let mem = AVMem::new(buffer_size as _);
-            unsafe {
-                frame_rgba.fill_arrays(
-                    mem.as_ptr(),
-                    AV_PIX_FMT_RGBA,
-                    video_context.avcodec_context.width,
-                    video_context.avcodec_context.height,
-                )
-            }
-            .map_err(|e| Error::new_video(e.into()))?;
+            frame_rgba.set_format(AV_PIX_FMT_RGBA);
+            frame_rgba.set_width(video_context.avcodec_context.width);
+            frame_rgba.set_height(video_context.avcodec_context.height);
+            frame_rgba.get_buffer(0).unwrap();
 
             Some(ScaleContext {
                 sws_context,
-                mem,
                 frame_rgba,
             })
         };
@@ -133,6 +117,7 @@ impl VideoContentCursor for AVFormatVideoContentCursor {
                                 } else {
                                     &frame
                                 };
+
                                 let image = Self::avframe_to_image(frame)?;
                                 self.video_cache.push_back(Content::new(
                                     image,

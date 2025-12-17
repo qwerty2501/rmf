@@ -1,11 +1,12 @@
-use iced::futures::SinkExt;
 use iced::futures::channel::mpsc;
-use iced::widget::{column, container, image};
-use iced::{Element, Length, Subscription};
+use iced::futures::{SinkExt, Stream};
+use iced::widget::{column, container, image, text};
+use iced::{Border, Color, Element, Length, Subscription, Theme, stream};
 use rmf_host::InputSource;
 use rmf_host::image::Image;
 use rmf_host::service::{ContentCursorTrait, ContentStreamServiceTrait};
 use rmf_host::video::VideoInputService;
+use std::hash::Hash;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::Duration;
@@ -14,7 +15,7 @@ use tokio::time::sleep;
 // アプリケーションの状態
 pub struct VideoPlayer {
     frame_handle: Option<image::Handle>, // Icedで表示する画像ハンドル
-    receiver: Option<mpsc::Receiver<Image>>, // フレーム受信用チャンネル
+    path: PathBuf,
 }
 
 #[derive(Clone)]
@@ -25,15 +26,11 @@ pub enum Message {
 
 impl VideoPlayer {
     pub fn new(path: impl AsRef<Path>) -> Self {
-        let (sender, receiver) = mpsc::channel(10);
         let path = path.as_ref().to_path_buf();
-
-        // 動画デコードを別スレッド（タスク）で開始
-        tokio::spawn(decode_video_loop(path, sender));
 
         Self {
             frame_handle: None,
-            receiver: Some(receiver),
+            path,
         }
     }
 
@@ -42,7 +39,7 @@ impl VideoPlayer {
             Message::FrameReceived(image) => {
                 let raw_pixels = image.data_bytes();
                 let size = image.size();
-
+                println!("size:{:?},raw_pixels:{:?}", size, &raw_pixels[0..10]);
                 let handle = image::Handle::from_rgba(size.width, size.height, raw_pixels);
                 self.frame_handle = Some(handle);
             }
@@ -52,50 +49,68 @@ impl VideoPlayer {
 
     // 画面の描画
     pub fn view(&self) -> Element<'_, Message> {
-        let content = if let Some(handle) = &self.frame_handle {
-            image(handle.clone())
-                .width(Length::Fill)
-                .height(Length::Fill)
+        if let Some(handle) = &self.frame_handle {
+            let content =
+                container(image(handle))
+                    .width(640)
+                    .height(360)
+                    .style(|_theme: &Theme| {
+                        container::Style {
+                            // Border::with_color(color, width) または border::all を使用
+                            border: Border {
+                                color: Color::BLACK,
+                                width: 2.0,
+                                radius: 0.0.into(),
+                            },
+                            ..Default::default()
+                        }
+                    });
+            column![text("Video View").size(30), content]
+                .padding(20)
+                .spacing(10)
+                .into()
         } else {
-            image(image::Handle::from_rgba(100, 100, vec![0; 100 * 100 * 4]))
-        };
-
-        container(column![content])
-            .width(Length::Fill)
-            .height(Length::Fill)
-            .into()
+            container(text("Wait..."))
+                .width(640)
+                .height(360)
+                .center_x(Length::Fill)
+                .center_y(Length::Fill)
+                .style(|_theme| container::Style {
+                    background: Some(iced::Color::from_rgb(1.0, 0.0, 0.0).into()),
+                    ..Default::default()
+                })
+                .into()
+        }
     }
 
     // 非同期イベントの購読
-    fn subscription(&self) -> Subscription<Message> {
-        // ここでチャネルを監視し、データが来たらMessage::FrameReceivedを発行する
-        // ※ 実際には `iced::subscription::unfold` などを使用して、
-        // self.receiverからデータを取り出し続ける実装にします。
-        struct Worker;
-
-        // 簡易的な実装: 実際にはチャネルをSubscriptionに変換するロジックが必要
-        // 概念としては「デコードスレッドからの入力をリッスンする」
-        Subscription::none()
+    pub fn subscription(&self) -> Subscription<Message> {
+        let path: PathBuf = self.path.clone();
+        Subscription::run_with(path, |path| decode_video_loop_worker(path.clone()))
     }
 }
 
-async fn decode_video_loop(path: PathBuf, sender: mpsc::Sender<Image>) {
+fn decode_video_loop_worker(path: PathBuf) -> impl Stream<Item = Message> {
+    stream::channel(100, move |output| decode_video_loop(path, output))
+}
+
+async fn decode_video_loop(path: PathBuf, sender: mpsc::Sender<Message>) {
     if let Err(err) = inner_decode_loop(path, sender).await {
         eprintln!("{err}");
     }
 }
 
-async fn inner_decode_loop(path: PathBuf, mut sender: mpsc::Sender<Image>) -> anyhow::Result<()> {
-    let input_source = InputSource::new_path(path);
+async fn inner_decode_loop(path: PathBuf, mut sender: mpsc::Sender<Message>) -> anyhow::Result<()> {
+    let input_source = InputSource::new_path(path.clone());
     let input_service = VideoInputService::try_new(input_source)?;
     let mut cursor = input_service.cursor()?;
 
     while let Some(content) = cursor.read()? {
-        sender.send(content.item().clone()).await?;
-        sleep(Duration::from_micros(
-            content.duration().as_microseconds() as _
-        ))
-        .await;
+        sender
+            .send(Message::FrameReceived(Arc::new(content.item().clone())))
+            .await?;
+        let sleep_duration = Duration::from_micros(content.duration().as_microseconds() as _);
+        sleep(sleep_duration).await;
     }
 
     Ok(())
