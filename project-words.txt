@@ -38,3 +38,4 @@ Timestamp
 videoio
 rmft
 wgpu
+codecpar
