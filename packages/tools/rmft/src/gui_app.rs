@@ -24,13 +24,6 @@ pub enum Message {
 }
 
 impl VideoPlayer {
-    pub fn def_new() -> Self {
-        let (sender, receiver) = mpsc::channel(10);
-        Self {
-            frame_handle: None,
-            receiver: Some(receiver),
-        }
-    }
     pub fn new(path: impl AsRef<Path>) -> Self {
         let (sender, receiver) = mpsc::channel(10);
         let path = path.as_ref().to_path_buf();
