@@ -55,6 +55,7 @@ pub fn input_contexts(
         Ok(Some(AVFormatContentContexts {
             avcodec_context,
             index,
+            time_base: stream.time_base,
         }))
     } else {
         Ok(None)
@@ -64,4 +65,5 @@ pub fn input_contexts(
 pub struct AVFormatContentContexts {
     pub avcodec_context: AVCodecContext,
     pub index: usize,
+    pub time_base: AVRational,
 }

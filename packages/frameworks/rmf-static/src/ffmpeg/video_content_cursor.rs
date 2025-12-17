@@ -116,9 +116,9 @@ impl VideoContentCursor for AVFormatVideoContentCursor {
                         match self.video_context.avcodec_context.receive_frame() {
                             Ok(frame) => {
                                 let presentation_timestamp =
-                                    to_timestamp(frame.pts, frame.time_base);
+                                    to_timestamp(frame.pts, self.video_context.time_base);
                                 let duration_timestamp =
-                                    to_timestamp(frame.duration, frame.time_base);
+                                    to_timestamp(frame.duration, self.video_context.time_base);
                                 let frame = if let Some(scale_context) = &mut self.scale_context {
                                     scale_context
                                         .sws_context
@@ -151,6 +151,7 @@ impl VideoContentCursor for AVFormatVideoContentCursor {
                             }
                         }
                     }
+                    break;
                 }
             }
             Ok(self.video_cache.pop_front())
