@@ -5,9 +5,9 @@ use rmf_core::{Content, Error, Result, Size, Timestamp, video::VideoContentCurso
 use rmf_macros::delegate_implements;
 use rsmpeg::{
     avformat::AVFormatContextInput,
-    avutil::{AVFrame, AVMem},
+    avutil::AVFrame,
     error::RsmpegError,
-    ffi::{AV_PIX_FMT_RGBA, AVMEDIA_TYPE_VIDEO, SWS_BICUBIC, av_image_get_buffer_size},
+    ffi::{AV_PIX_FMT_RGBA, AVMEDIA_TYPE_VIDEO, SWS_BICUBIC},
     swscale::SwsContext,
 };
 

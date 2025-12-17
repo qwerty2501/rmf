@@ -6,7 +6,6 @@ use rmf_host::InputSource;
 use rmf_host::image::Image;
 use rmf_host::service::{ContentCursorTrait, ContentStreamServiceTrait};
 use rmf_host::video::VideoInputService;
-use std::hash::Hash;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::Duration;
