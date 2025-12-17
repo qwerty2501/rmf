@@ -36,22 +36,8 @@ impl VideoPlayer {
     pub fn update(&mut self, message: Message) {
         match message {
             Message::FrameReceived(image) => {
-                let mut raw_pixels = image.data_bytes();
+                let raw_pixels = image.data_bytes();
                 let size = image.size();
-                let expected_size = (size.width * size.height * 4) as usize;
-                if raw_pixels.len() != expected_size {
-                    // もしここを通るなら、FFmpeg側の変換（linesize）にパディングが残っています
-                    eprintln!(
-                        "Size mismatch! expected: {}, got: {}",
-                        expected_size,
-                        raw_pixels.len()
-                    );
-                    return;
-                }
-                for i in 0..100 {
-                    raw_pixels[i * 4 + 1] = 255; // G
-                    raw_pixels[i * 4 + 3] = 255; // A
-                }
                 let handle = image::Handle::from_rgba(size.width, size.height, raw_pixels);
                 self.frame_handle = Some(handle);
             }
