@@ -1,14 +1,14 @@
 use iced::futures::SinkExt;
 use iced::futures::channel::mpsc;
 use iced::widget::{column, container, image};
-use iced::{Element, Length, Settings, Subscription, Theme, executor};
+use iced::{Element, Length, Subscription};
 use rmf_host::InputSource;
 use rmf_host::image::Image;
 use rmf_host::service::{ContentCursorTrait, ContentStreamServiceTrait};
 use rmf_host::video::VideoInputService;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use tokio::time::sleep;
 
 // アプリケーションの状態
