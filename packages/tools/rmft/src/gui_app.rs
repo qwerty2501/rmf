@@ -37,9 +37,22 @@ impl VideoPlayer {
     pub fn update(&mut self, message: Message) {
         match message {
             Message::FrameReceived(image) => {
-                let raw_pixels = image.data_bytes();
+                let mut raw_pixels = image.data_bytes();
                 let size = image.size();
-                println!("size:{:?},raw_pixels:{:?}", size, &raw_pixels[0..10]);
+                let expected_size = (size.width * size.height * 4) as usize;
+                if raw_pixels.len() != expected_size {
+                    // もしここを通るなら、FFmpeg側の変換（linesize）にパディングが残っています
+                    eprintln!(
+                        "Size mismatch! expected: {}, got: {}",
+                        expected_size,
+                        raw_pixels.len()
+                    );
+                    return;
+                }
+                for i in 0..100 {
+                    raw_pixels[i * 4 + 1] = 255; // G
+                    raw_pixels[i * 4 + 3] = 255; // A
+                }
                 let handle = image::Handle::from_rgba(size.width, size.height, raw_pixels);
                 self.frame_handle = Some(handle);
             }
@@ -50,21 +63,20 @@ impl VideoPlayer {
     // 画面の描画
     pub fn view(&self) -> Element<'_, Message> {
         if let Some(handle) = &self.frame_handle {
-            let content =
-                container(image(handle))
-                    .width(640)
-                    .height(360)
-                    .style(|_theme: &Theme| {
-                        container::Style {
-                            // Border::with_color(color, width) または border::all を使用
-                            border: Border {
-                                color: Color::BLACK,
-                                width: 2.0,
-                                radius: 0.0.into(),
-                            },
-                            ..Default::default()
-                        }
-                    });
+            let content = container(image(handle))
+                .width(Length::Fill)
+                .height(Length::Fill)
+                .style(|_theme: &Theme| {
+                    container::Style {
+                        // Border::with_color(color, width) または border::all を使用
+                        border: Border {
+                            color: Color::BLACK,
+                            width: 2.0,
+                            radius: 0.0.into(),
+                        },
+                        ..Default::default()
+                    }
+                });
             column![text("Video View").size(30), content]
                 .padding(20)
                 .spacing(10)
