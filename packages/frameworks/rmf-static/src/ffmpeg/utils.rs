@@ -2,7 +2,7 @@ use std::{ffi::CString, os::unix::ffi::OsStrExt, path::Path};
 
 use rmf_core::{Error, InputSource, Result, Timestamp};
 use rsmpeg::{
-    avcodec::AVCodecContext,
+    avcodec::{AVCodec, AVCodecContext},
     avformat::AVFormatContextInput,
     avutil::av_rescale_q,
     ffi::{self, AV_TIME_BASE_Q, AVRational, AVSEEK_FLAG_BACKWARD},
@@ -38,11 +38,20 @@ pub fn input_contexts(
     input: &AVFormatContextInput,
     media_type: ffi::AVMediaType,
 ) -> Result<Option<AVFormatContentContexts>> {
-    if let Some((index, avcodec)) = input
+    if let Some((index, _)) = input
         .find_best_stream(media_type)
         .map_err(|e| Error::new_input(e.into()))?
     {
-        let avcodec_context = AVCodecContext::new(&avcodec);
+        let stream = &input.streams()[index];
+        let mut avcodec_context =
+            AVCodecContext::new(&AVCodec::find_decoder(stream.codecpar().codec_id).unwrap());
+        avcodec_context
+            .apply_codecpar(&stream.codecpar())
+            .map_err(|e| Error::new_input(e.into()))?;
+        avcodec_context
+            .open(None)
+            .map_err(|e| Error::new_input(e.into()))?;
+
         Ok(Some(AVFormatContentContexts {
             avcodec_context,
             index,
