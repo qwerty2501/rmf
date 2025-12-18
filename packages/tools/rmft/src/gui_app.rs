@@ -1,7 +1,8 @@
 use iced::futures::channel::mpsc;
 use iced::futures::{SinkExt, Stream};
-use iced::widget::{column, container, image, text};
-use iced::{Border, Color, Element, Length, Subscription, Theme, stream};
+use iced::widget::canvas::{self, Cache, Frame};
+use iced::widget::{Canvas, column, container, text};
+use iced::{Border, Color, Element, Length, Point, Renderer, Subscription, Theme, mouse, stream};
 use rmf_host::InputSource;
 use rmf_host::image::Image;
 use rmf_host::service::{ContentCursorTrait, ContentStreamServiceTrait};
@@ -13,14 +14,14 @@ use tokio::time::sleep;
 
 // アプリケーションの状態
 pub struct VideoPlayer {
-    frame_handle: Option<image::Handle>, // Icedで表示する画像ハンドル
+    frame_cache: Cache,
+    frame_image: Option<Arc<Image>>,
     path: PathBuf,
 }
 
 #[derive(Clone)]
 pub enum Message {
     FrameReceived(Arc<Image>), // 新しいフレームが届いた
-    Tick,                      // タイマーイベント（フレームレート制御用）
 }
 
 impl VideoPlayer {
@@ -28,7 +29,8 @@ impl VideoPlayer {
         let path = path.as_ref().to_path_buf();
 
         Self {
-            frame_handle: None,
+            frame_cache: Cache::default(),
+            frame_image: None,
             path,
         }
     }
@@ -36,54 +38,48 @@ impl VideoPlayer {
     pub fn update(&mut self, message: Message) {
         match message {
             Message::FrameReceived(image) => {
-                let raw_pixels = image.data_bytes();
-                let size = image.size();
-                let handle = image::Handle::from_rgba(size.width, size.height, raw_pixels);
-                self.frame_handle = Some(handle);
+                self.frame_image = Some(image);
+                self.frame_cache.clear();
             }
-            Message::Tick => {}
         }
     }
 
     // 画面の描画
     pub fn view(&self) -> Element<'_, Message> {
-        if let Some(handle) = &self.frame_handle {
-            let content = container(image(handle))
-                .width(Length::Fill)
-                .height(Length::Fill)
-                .style(|_theme: &Theme| {
-                    container::Style {
-                        // Border::with_color(color, width) または border::all を使用
-                        border: Border {
-                            color: Color::BLACK,
-                            width: 2.0,
-                            radius: 0.0.into(),
-                        },
-                        ..Default::default()
-                    }
-                });
-            column![text("Video View").size(30), content]
-                .padding(20)
-                .spacing(10)
-                .into()
-        } else {
-            container(text("Wait..."))
-                .width(640)
-                .height(360)
-                .center_x(Length::Fill)
-                .center_y(Length::Fill)
-                .style(|_theme| container::Style {
-                    background: Some(iced::Color::from_rgb(1.0, 0.0, 0.0).into()),
-                    ..Default::default()
-                })
-                .into()
-        }
+        Canvas::new(self)
+            .width(Length::Fill)
+            .height(Length::Fill)
+            .into()
     }
 
     // 非同期イベントの購読
     pub fn subscription(&self) -> Subscription<Message> {
         let path: PathBuf = self.path.clone();
         Subscription::run_with(path, |path| decode_video_loop_worker(path.clone()))
+    }
+}
+impl<Message> canvas::Program<Message> for VideoPlayer {
+    type State = ();
+    fn draw(
+        &self,
+        state: &Self::State,
+        renderer: &Renderer,
+        theme: &Theme,
+        bounds: iced::Rectangle,
+        cursor: mouse::Cursor,
+    ) -> Vec<canvas::Geometry<Renderer>> {
+        let geometry = self.frame_cache.draw(renderer, bounds.size(), |frame| {
+            if let Some(frame_image) = &self.frame_image {
+                let size = frame_image.size();
+                let im = iced::widget::canvas::Image::new(iced::widget::image::Handle::from_rgba(
+                    size.width,
+                    size.height,
+                    frame_image.data_bytes(),
+                ));
+                frame.draw_image(bounds, im);
+            }
+        });
+        vec![geometry]
     }
 }
 
