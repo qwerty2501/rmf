@@ -40,3 +40,4 @@ rmft
 wgpu
 codecpar
 egui
+eframe

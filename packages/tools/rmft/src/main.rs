@@ -1,17 +1,19 @@
 use std::env;
 
 use crate::gui_app::VideoPlayer;
+use eframe::egui;
 
 mod gui_app;
 
-fn main() -> iced::Result {
-    let args: Vec<String> = env::args().collect();
-    let video_path = args[1].to_string();
-    let app = iced::application(
-        move || VideoPlayer::new(video_path.clone()),
-        VideoPlayer::update,
-        VideoPlayer::view,
+fn main() -> eframe::Result {
+    let path = env::args().next().unwrap();
+    let options = eframe::NativeOptions {
+        viewport: egui::ViewportBuilder::default().with_inner_size([320.0, 880.0]),
+        ..Default::default()
+    };
+    eframe::run_native(
+        "video editor",
+        options,
+        Box::new(|cc| Ok(Box::new(VideoPlayer::new(path, cc)))),
     )
-    .subscription(VideoPlayer::subscription);
-    app.run()
 }
