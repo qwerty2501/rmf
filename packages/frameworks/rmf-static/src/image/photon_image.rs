@@ -18,9 +18,9 @@ impl rmf_core::image::Image for Image {
             width: self.inner.get_width(),
         }
     }
-    fn new_size(size: rmf_core::Size, data: Vec<u8>) -> rmf_core::Result<Self> {
+    fn new_size(size: rmf_core::Size, data: &[u8]) -> rmf_core::Result<Self> {
         Ok(Self {
-            inner: photon_rs::PhotonImage::new(data, size.width, size.height),
+            inner: photon_rs::PhotonImage::new(data.to_vec(), size.width, size.height),
         })
     }
 }
