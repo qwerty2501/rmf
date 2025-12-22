@@ -39,3 +39,4 @@ videoio
 rmft
 wgpu
 codecpar
+egui
