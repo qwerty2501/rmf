@@ -1,4 +1,5 @@
 pub mod audio;
+pub mod core;
 pub mod image;
 pub mod video;
 
