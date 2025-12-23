@@ -9,4 +9,9 @@ license-file.workspace = true
 anyhow.workspace = true
 eframe = "0.33.3"
 rmf-host = { path = "../../frameworks/rmf-host" }
-tokio = { version = "1.48.0", features = ["time", "sync", "rt"] }
+tokio = { version = "1.48.0", features = [
+  "time",
+  "sync",
+  "rt-multi-thread",
+  "macros",
+] }
