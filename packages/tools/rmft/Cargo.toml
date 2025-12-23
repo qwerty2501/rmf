@@ -7,6 +7,6 @@ license-file.workspace = true
 
 [dependencies]
 anyhow.workspace = true
-eframe = { git = "https://github.com/emilk/egui.git" }
+eframe = "0.33.3"
 rmf-host = { path = "../../frameworks/rmf-host" }
 tokio = { version = "1.48.0", features = ["time", "sync", "rt"] }
