@@ -16,12 +16,12 @@ pub struct VideoPlayer {
 
 impl eframe::App for VideoPlayer {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        if let Ok(message) = self.receiver.try_recv() {
-            match message {
-                Message::FrameReceived(color_image) => {
-                    self.texture.set(color_image, Default::default());
-                }
-            }
+        let mut latest_frame = None;
+        while let Ok(Message::FrameReceived(color_image)) = self.receiver.try_recv() {
+            latest_frame = Some(color_image);
+        }
+        if let Some(latest_frame) = latest_frame {
+            self.texture.set(latest_frame, Default::default());
         }
 
         egui::CentralPanel::default().show(ctx, |ui| {
