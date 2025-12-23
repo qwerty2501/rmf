@@ -7,6 +7,7 @@ license-file.workspace = true
 
 [dependencies]
 anyhow.workspace = true
+bytemuck = "1.24.0"
 eframe = "0.33.3"
 rmf-host = { path = "../../frameworks/rmf-host" }
 tokio = { version = "1.48.0", features = [

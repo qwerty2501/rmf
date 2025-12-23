@@ -41,3 +41,4 @@ wgpu
 codecpar
 egui
 eframe
+bytemuck

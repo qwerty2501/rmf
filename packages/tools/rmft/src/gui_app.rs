@@ -73,11 +73,8 @@ async fn inner_decode_loop(
 
     while let Some(content) = cursor.read()? {
         let image = content.item();
-        let pixels = image
-            .data_bytes()
-            .chunks_exact(4)
-            .map(|data| Color32::from_rgba_premultiplied(data[0], data[1], data[2], data[3]))
-            .collect();
+        let data_bytes = image.data_bytes();
+        let pixels = bytemuck::cast_slice::<u8, Color32>(&data_bytes).to_vec();
         let color_image =
             ColorImage::new([image.size().width as _, image.size().height as _], pixels);
         sender
