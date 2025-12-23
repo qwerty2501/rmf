@@ -74,7 +74,7 @@ async fn inner_decode_loop(
     while let Some(content) = cursor.read()? {
         let image = content.item();
         let data_bytes = image.data_bytes();
-        let pixels = bytemuck::cast_vec::<u8, Color32>(data_bytes);
+        let pixels = bytemuck::cast_slice::<u8, Color32>(&data_bytes).to_vec();
         let color_image =
             ColorImage::new([image.size().width as _, image.size().height as _], pixels);
         sender
