@@ -38,7 +38,7 @@ impl ContentCursorTrait for VideoTrackContentCursor {
     fn read(&mut self) -> crate::Result<Option<Content<Self::Item>>> {
         unimplemented!()
     }
-    fn seek(&mut self, timestamp: Timestamp) -> crate::Result<()> {
+    fn seek(&mut self, _timestamp: Timestamp) -> crate::Result<()> {
         unimplemented!()
     }
 }

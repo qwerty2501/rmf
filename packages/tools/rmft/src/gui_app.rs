@@ -1,7 +1,5 @@
-use eframe::egui::mutex::Mutex;
-use eframe::egui::{self, Color32, ColorImage, TextureHandle, TextureOptions};
+use eframe::egui::{self, Color32, ColorImage};
 use rmf_host::InputSource;
-use rmf_host::image::Image;
 use rmf_host::service::{ContentCursorTrait, ContentStreamServiceTrait};
 use rmf_host::video::VideoInputService;
 use std::path::{Path, PathBuf};
@@ -17,7 +15,7 @@ pub struct VideoPlayer {
 }
 
 impl eframe::App for VideoPlayer {
-    fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         if let Ok(message) = self.receiver.try_recv() {
             match message {
                 Message::FrameReceived(color_image) => {
