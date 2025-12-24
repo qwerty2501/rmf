@@ -59,8 +59,10 @@ impl Timestamp {
     }
 
     pub fn now() -> Self {
-        let now = SystemTime::now();
-        Self::from(now.elapsed().unwrap())
+        let now = SystemTime::now()
+            .duration_since(std::time::SystemTime::UNIX_EPOCH)
+            .unwrap();
+        Self::from(now)
     }
 }
 
