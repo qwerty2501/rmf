@@ -1,12 +1,14 @@
 use eframe::egui::{self, Color32, ColorImage};
-use rmf_host::InputSource;
+use rmf_host::image::Image;
 use rmf_host::service::{ContentCursorTrait, ContentStreamServiceTrait};
 use rmf_host::video::VideoInputService;
+use rmf_host::{Content, InputSource, Timestamp};
+use std::collections::VecDeque;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::mpsc::{self, Receiver};
-use tokio::time::sleep;
+use tokio::time::{Instant, sleep, sleep_until};
 
 // アプリケーションの状態
 pub struct VideoPlayer {
@@ -62,6 +64,26 @@ async fn decode_video_loop(path: PathBuf, sender: mpsc::Sender<Message>, ctx: eg
     }
 }
 
+struct InnerContent {
+    offset: Timestamp,
+    duration: Timestamp,
+    color_image: ColorImage,
+}
+impl InnerContent {
+    fn from_rmf_content(content: Content<Image>) -> Self {
+        let image = content.item();
+        let data_bytes = image.data_bytes();
+        let pixels = bytemuck::cast_slice::<u8, Color32>(&data_bytes).to_vec();
+        let color_image =
+            ColorImage::new([image.size().width as _, image.size().height as _], pixels);
+        Self {
+            offset: content.offset(),
+            duration: content.duration(),
+            color_image,
+        }
+    }
+}
+
 async fn inner_decode_loop(
     path: PathBuf,
     sender: mpsc::Sender<Message>,
@@ -70,19 +92,46 @@ async fn inner_decode_loop(
     let input_source = InputSource::new_path(path.clone());
     let input_service = VideoInputService::try_new(input_source)?;
     let mut cursor = input_service.cursor()?;
+    const MAX_QUEUE_SIZE: usize = 10;
+    let mut content_queue = VecDeque::<InnerContent>::with_capacity(MAX_QUEUE_SIZE);
 
-    while let Some(content) = cursor.read()? {
-        let image = content.item();
-        let data_bytes = image.data_bytes();
-        let pixels = bytemuck::cast_slice::<u8, Color32>(&data_bytes).to_vec();
-        let color_image =
-            ColorImage::new([image.size().width as _, image.size().height as _], pixels);
-        sender
-            .send(Message::FrameReceived(Arc::new(color_image)))
-            .await?;
-        ctx.request_repaint();
-        let sleep_duration = Duration::from_micros(content.duration().as_microseconds() as _);
-        sleep(sleep_duration).await;
+    let mut start_instant: Option<Instant> = None;
+    let mut start_offset: Option<Timestamp> = None;
+
+    loop {
+        while content_queue.len() < MAX_QUEUE_SIZE {
+            if let Some(content) = cursor.read()? {
+                content_queue.push_back(InnerContent::from_rmf_content(content));
+            } else {
+                break;
+            }
+        }
+
+        if let Some(content) = content_queue.pop_front() {
+            if start_instant.is_none() {
+                start_instant = Some(Instant::now());
+                start_offset = Some(content.offset);
+            }
+
+            let base_start = start_instant.unwrap();
+            let base_offset = start_offset.unwrap();
+
+            let video_elapsed = content.offset - base_offset;
+
+            let video_elapsed_duration =
+                Duration::from_millis(video_elapsed.as_milliseconds() as u64);
+
+            let target_time = base_start + video_elapsed_duration;
+
+            sleep_until(target_time).await;
+
+            sender
+                .send(Message::FrameReceived(Arc::new(content.color_image)))
+                .await?;
+            ctx.request_repaint();
+        } else {
+            break;
+        }
     }
 
     Ok(())
