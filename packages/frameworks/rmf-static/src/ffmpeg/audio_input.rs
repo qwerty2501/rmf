@@ -43,7 +43,7 @@ impl AVFormatAudioInput {
     pub fn try_new(source: InputSource) -> Result<Self> {
         let input = make_input(&source)?;
         let context = input_contexts(&input, AVMEDIA_TYPE_AUDIO)?
-            .ok_or_else(|| Error::new_input(anyhow!("not found video stream.")))?;
+            .ok_or_else(|| Error::new_input(anyhow!("not found audio stream.")))?;
         let audio_stream = &input.streams()[context.index];
 
         Ok(Self {
