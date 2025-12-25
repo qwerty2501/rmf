@@ -5,7 +5,8 @@ members = [
   "packages/frameworks/rmf-core",
   "packages/frameworks/rmf-host",
   "packages/frameworks/rmf-macros",
-  "packages/frameworks/rmf-static", "packages/tools/rmft",
+  "packages/frameworks/rmf-static",
+  "examples/*",
 ]
 resolver = "3"
 
