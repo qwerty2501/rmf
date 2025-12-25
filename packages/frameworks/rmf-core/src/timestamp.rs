@@ -57,13 +57,6 @@ impl Timestamp {
             raw_microseconds: (seconds * SECONDS_RATIO as f32) as i64,
         }
     }
-
-    pub fn now() -> Self {
-        let now = SystemTime::now()
-            .duration_since(std::time::SystemTime::UNIX_EPOCH)
-            .unwrap();
-        Self::from(now)
-    }
 }
 
 impl Display for Timestamp {
