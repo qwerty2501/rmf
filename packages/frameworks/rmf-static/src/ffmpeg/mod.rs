@@ -1,3 +1,4 @@
+pub mod audio;
 mod audio_content_cursor;
 mod audio_input;
 mod utils;
