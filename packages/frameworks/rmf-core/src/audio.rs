@@ -66,6 +66,8 @@ pub trait AudioContentCursor {
 pub trait AudioInput: DynClone {
     type Item: Audio;
     type ContentCursor: AudioContentCursor;
+    fn duration(&self) -> Timestamp;
+    fn sample_rate(&self) -> u32;
     fn cursor(&self) -> Result<Self::ContentCursor>;
 }
 dyn_clone::clone_trait_object!(<I,C> AudioInput<Item = I,ContentCursor=C> where I:Audio ,C:AudioContentCursor);

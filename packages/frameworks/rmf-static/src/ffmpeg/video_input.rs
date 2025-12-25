@@ -8,7 +8,10 @@ use rsmpeg::ffi::{AVMEDIA_TYPE_VIDEO, av_q2d};
 
 use crate::{
     Image,
-    ffmpeg::{AVFormatVideoContentCursor, utils::make_input},
+    ffmpeg::{
+        AVFormatVideoContentCursor,
+        utils::{input_contexts, make_input},
+    },
 };
 
 #[derive(Clone)]
@@ -22,16 +25,14 @@ pub struct AVFormatVideoInput {
 impl AVFormatVideoInput {
     pub fn try_new(source: InputSource) -> Result<AVFormatVideoInput> {
         let input = make_input(&source)?;
-        let (video_index, _) = input
-            .find_best_stream(AVMEDIA_TYPE_VIDEO)
-            .map_err(|e| Error::new_input(e.into()))?
+        let context = input_contexts(&input, AVMEDIA_TYPE_VIDEO)?
             .ok_or_else(|| Error::new_input(anyhow!("not found video stream.")))?;
-        let video_stream = &input.streams()[video_index];
+        let video_stream = &input.streams()[context.index];
         let fps = av_q2d(video_stream.r_frame_rate);
 
         Ok(AVFormatVideoInput {
             source,
-            video_index,
+            video_index: context.index,
             fps,
             duration: Timestamp::from_microseconds(input.duration),
         })
