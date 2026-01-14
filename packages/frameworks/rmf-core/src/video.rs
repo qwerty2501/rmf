@@ -4,8 +4,9 @@ use crate::{Content, Result, Timestamp, image::Image};
 
 pub trait VideoContentCursor {
     type Item: Image;
-    fn read(&mut self) -> Result<Option<Content<Self::Item>>>;
+    fn offset(&self) -> Timestamp;
     fn fps(&self) -> f64;
+    fn read(&mut self) -> Result<Option<Content<Self::Item>>>;
     fn seek(&mut self, timestamp: Timestamp) -> Result<()>;
 }
 

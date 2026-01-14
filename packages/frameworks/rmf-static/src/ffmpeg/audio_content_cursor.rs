@@ -14,6 +14,7 @@ use crate::{
 
 pub struct AVFormatAudioContentCursor {
     input: AVFormatContextInput,
+    offset: Timestamp,
     audio_context: AVFormatContentContexts,
     audio_cache: VecDeque<Content<Audio>>,
 }
@@ -24,6 +25,7 @@ impl AVFormatAudioContentCursor {
             .ok_or_else(|| Error::new_input(anyhow!("Can not make input context")))?;
         Ok(Self {
             input,
+            offset: Timestamp::default(),
             audio_context,
             audio_cache: VecDeque::default(),
         })
@@ -37,6 +39,10 @@ impl AVFormatAudioContentCursor {
 #[delegate_implements]
 impl rmf_core::audio::AudioContentCursor for AVFormatAudioContentCursor {
     type Item = Audio;
+    #[inline]
+    fn offset(&self) -> Timestamp {
+        self.offset
+    }
     fn read(&mut self) -> Result<Option<Content<Audio>>> {
         if let Some(content) = self.audio_cache.pop_front() {
             Ok(Some(content))
@@ -79,7 +85,13 @@ impl rmf_core::audio::AudioContentCursor for AVFormatAudioContentCursor {
                     break;
                 }
             }
-            Ok(self.audio_cache.pop_front())
+
+            if let Some(audio) = self.audio_cache.pop_front() {
+                self.offset = audio.offset();
+                Ok(Some(audio))
+            } else {
+                Ok(None)
+            }
         }
     }
     #[inline]

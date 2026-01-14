@@ -59,6 +59,7 @@ pub trait AudioConstructor {
 }
 pub trait AudioContentCursor {
     type Item: Audio;
+    fn offset(&self) -> Timestamp;
     fn read(&mut self) -> Result<Option<Content<Self::Item>>>;
     fn seek(&mut self, timestamp: Timestamp) -> Result<()>;
 }

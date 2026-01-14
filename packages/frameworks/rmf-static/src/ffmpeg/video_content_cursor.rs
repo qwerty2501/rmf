@@ -18,6 +18,7 @@ use crate::{
 
 pub struct AVFormatVideoContentCursor {
     input: AVFormatContextInput,
+    offset: Timestamp,
     video_context: AVFormatContentContexts,
     scale_context: Option<ScaleContext>,
     video_cache: VecDeque<Content<Image>>,
@@ -63,6 +64,7 @@ impl AVFormatVideoContentCursor {
 
         Ok(Self {
             input,
+            offset: Timestamp::default(),
             video_context,
             scale_context,
             video_cache: VecDeque::default(),
@@ -82,6 +84,10 @@ impl AVFormatVideoContentCursor {
 #[delegate_implements]
 impl VideoContentCursor for AVFormatVideoContentCursor {
     type Item = Image;
+    #[inline]
+    fn offset(&self) -> Timestamp {
+        self.offset
+    }
     #[inline]
     fn fps(&self) -> f64 {
         self.fps
@@ -143,7 +149,12 @@ impl VideoContentCursor for AVFormatVideoContentCursor {
                     break;
                 }
             }
-            Ok(self.video_cache.pop_front())
+            if let Some(video) = self.video_cache.pop_front() {
+                self.offset = video.offset();
+                Ok(Some(video))
+            } else {
+                Ok(None)
+            }
         }
     }
     #[inline]
