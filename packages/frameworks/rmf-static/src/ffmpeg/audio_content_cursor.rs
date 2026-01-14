@@ -76,6 +76,7 @@ impl rmf_core::audio::AudioContentCursor for AVFormatAudioContentCursor {
                             }
                         }
                     }
+                    break;
                 }
             }
             Ok(self.audio_cache.pop_front())
