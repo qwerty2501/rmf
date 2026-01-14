@@ -82,7 +82,7 @@ impl AudioDataContextBuilder {
             AV_SAMPLE_FMT_DBL | AV_SAMPLE_FMT_DBLP => {
                 Ok(AudioDataContext::F64(AudioData::<f64>::new(av_frame)))
             }
-            _ => Err(Error::new_audio(anyhow!("Can't convert av frame").into())),
+            _ => Err(Error::new_audio(anyhow!("Can't convert av frame"))),
         }
     }
 }
