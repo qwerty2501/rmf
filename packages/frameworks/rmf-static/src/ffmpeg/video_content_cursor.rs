@@ -73,9 +73,8 @@ impl AVFormatVideoContentCursor {
         let width = frame.width as usize;
         let height = frame.height as usize;
 
-        // 期待される全サイズ: width * height * 4
-        let total_size = width * height * 4;
-        let data = unsafe { slice::from_raw_parts(frame.data[0], total_size) };
+        let expected_total_size = width * height * 4;
+        let data = unsafe { slice::from_raw_parts(frame.data[0], expected_total_size) };
         Image::new_size(Size::new(frame.width as _, frame.height as _), data)
     }
 }
