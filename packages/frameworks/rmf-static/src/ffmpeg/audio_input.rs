@@ -16,7 +16,6 @@ use crate::{
 pub struct AVFormatAudioInput {
     source: InputSource,
     duration: Timestamp,
-    audio_index: usize,
     sample_rate: u32,
 }
 
@@ -48,7 +47,6 @@ impl AVFormatAudioInput {
 
         Ok(Self {
             source,
-            audio_index: audio_stream.index as _,
             sample_rate: audio_stream.codecpar().sample_rate as _,
             duration: Timestamp::from_microseconds(input.duration),
         })

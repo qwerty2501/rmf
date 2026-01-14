@@ -18,7 +18,6 @@ use crate::{
 pub struct AVFormatVideoInput {
     source: InputSource,
     duration: Timestamp,
-    video_index: usize,
     fps: f64,
 }
 
@@ -32,7 +31,6 @@ impl AVFormatVideoInput {
 
         Ok(AVFormatVideoInput {
             source,
-            video_index: context.index,
             fps,
             duration: Timestamp::from_microseconds(input.duration),
         })
