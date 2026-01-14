@@ -67,6 +67,7 @@ pub trait AudioInput: DynClone {
     type Item: Audio;
     type ContentCursor: AudioContentCursor;
     fn duration(&self) -> Timestamp;
+    fn fps(&self) -> f64;
     fn sample_rate(&self) -> u32;
     fn cursor(&self) -> Result<Self::ContentCursor>;
 }
