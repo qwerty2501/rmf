@@ -11,9 +11,15 @@ pub struct DefaultAudioContentCursor(AVFormatAudioContentCursor);
 #[delegate_implements]
 impl rmf_core::audio::AudioContentCursor for DefaultAudioContentCursor {
     type Item = Audio;
+    #[inline]
+    fn offset(&self) -> Timestamp {
+        self.0.offset()
+    }
+    #[inline]
     fn read(&mut self) -> rmf_core::Result<Option<rmf_core::Content<Audio>>> {
         self.0.read()
     }
+    #[inline]
     fn seek(&mut self, timestamp: rmf_core::Timestamp) -> rmf_core::Result<()> {
         self.0.seek(timestamp)
     }
@@ -26,13 +32,16 @@ pub struct DefaultAudioInput(AVFormatAudioInput);
 impl rmf_core::audio::AudioInput for DefaultAudioInput {
     type Item = Audio;
     type ContentCursor = DefaultAudioContentCursor;
+    #[inline]
     fn duration(&self) -> Timestamp {
         self.0.duration()
     }
+    #[inline]
     fn sample_rate(&self) -> u32 {
         self.0.sample_rate()
     }
 
+    #[inline]
     fn cursor(&self) -> rmf_core::Result<DefaultAudioContentCursor> {
         Ok(DefaultAudioContentCursor(self.0.cursor()?))
     }
