@@ -1,7 +1,9 @@
 use rmf_core::audio::{AudioContentCursor, AudioInput};
 use rmf_static::{Audio, DefaultAudioContentCursor, DefaultAudioInput};
 
-use crate::service::{AudioContentStreamServiceTrait, ContentCursorTrait, ContentStreamServiceTrait, ServiceTrait};
+use crate::service::{
+    AudioContentStreamServiceTrait, ContentCursorTrait, ContentStreamServiceTrait, ServiceTrait,
+};
 
 #[derive(Clone)]
 enum ContextAudioInput {
@@ -41,7 +43,7 @@ impl rmf_core::audio::AudioInput for ContextAudioInput {
     #[inline]
     fn cursor(&self) -> rmf_core::Result<Self::ContentCursor> {
         match self {
-            Self::Default(d) => d.cursor(),
+            Self::Default(d) => Ok(ContextAudioContextCursor::Default(d.cursor()?)),
         }
     }
 
@@ -91,10 +93,10 @@ impl ContentStreamServiceTrait for AudioInputService {
     }
     #[inline]
     fn cursor(&self) -> crate::Result<Self::ContentCursor> {
-        Ok(AudioInputContentCursor { inner: self.inner.cursor()? }
+        Ok(AudioInputContentCursor {
+            inner: self.inner.cursor()?,
+        })
     }
 }
 
-
-impl AudioContentStreamServiceTrait for AudioInputService{
-}
+impl AudioContentStreamServiceTrait for AudioInputService {}

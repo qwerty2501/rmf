@@ -27,6 +27,13 @@ impl rmf_core::video::VideoContentCursor for ContextVideoContentCursor {
     type Item = Image;
 
     #[inline]
+    fn offset(&self) -> rmf_core::Timestamp {
+        match self {
+            Self::Default(d) => d.offset(),
+        }
+    }
+
+    #[inline]
     fn fps(&self) -> f64 {
         match self {
             Self::Default(d) => d.fps(),

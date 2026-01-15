@@ -12,6 +12,10 @@ pub struct DefaultVideoContentCursor(AVFormatVideoContentCursor);
 impl rmf_core::video::VideoContentCursor for DefaultVideoContentCursor {
     type Item = Image;
     #[inline]
+    fn offset(&self) -> Timestamp {
+        self.0.offset()
+    }
+    #[inline]
     fn read(&mut self) -> rmf_core::Result<Option<rmf_core::Content<Image>>> {
         self.0.read()
     }
