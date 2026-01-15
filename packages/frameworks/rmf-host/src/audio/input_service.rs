@@ -34,16 +34,22 @@ impl rmf_core::audio::AudioContentCursor for ContextAudioContextCursor {
 impl rmf_core::audio::AudioInput for ContextAudioInput {
     type ContentCursor = ContextAudioContextCursor;
     type Item = Audio;
+
+    #[inline]
     fn cursor(&self) -> rmf_core::Result<Self::ContentCursor> {
         match self {
             Self::Default(d) => d.cursor(),
         }
     }
+
+    #[inline]
     fn duration(&self) -> rmf_core::Timestamp {
         match self {
             Self::Default(d) => d.duration(),
         }
     }
+
+    #[inline]
     fn sample_rate(&self) -> u32 {
         match self {
             Self::Default(d) => d.sample_rate(),
