@@ -1,4 +1,7 @@
+use rmf_core::audio::{AudioContentCursor, AudioInput};
 use rmf_static::{Audio, DefaultAudioContentCursor, DefaultAudioInput};
+
+use crate::service::{AudioContentStreamServiceTrait, ContentCursorTrait, ContentStreamServiceTrait, ServiceTrait};
 
 #[derive(Clone)]
 enum ContextAudioInput {
@@ -55,4 +58,43 @@ impl rmf_core::audio::AudioInput for ContextAudioInput {
             Self::Default(d) => d.sample_rate(),
         }
     }
+}
+
+#[derive(Clone)]
+pub struct AudioInputService {
+    inner: ContextAudioInput,
+}
+
+pub struct AudioInputContentCursor {
+    inner: ContextAudioContextCursor,
+}
+
+impl ContentCursorTrait for AudioInputContentCursor {
+    type Item = Audio;
+    fn read(&mut self) -> crate::Result<Option<rmf_core::Content<Self::Item>>> {
+        Ok(self.inner.read()?)
+    }
+    fn seek(&mut self, timestamp: rmf_core::Timestamp) -> crate::Result<()> {
+        Ok(self.seek(timestamp)?)
+    }
+}
+
+impl ServiceTrait for AudioInputService {}
+
+impl ContentStreamServiceTrait for AudioInputService {
+    type Item = Audio;
+    type ContentCursor = AudioInputContentCursor;
+
+    #[inline]
+    fn duration(&self) -> rmf_core::Timestamp {
+        self.inner.duration()
+    }
+    #[inline]
+    fn cursor(&self) -> crate::Result<Self::ContentCursor> {
+        Ok(AudioInputContentCursor { inner: self.inner.cursor()? }
+    }
+}
+
+
+impl AudioContentStreamServiceTrait for AudioInputService{
 }
