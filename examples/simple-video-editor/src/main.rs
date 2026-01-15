@@ -1,9 +1,10 @@
+mod audio_app;
+mod gui_app;
+
 use std::env;
 
 use crate::gui_app::VideoPlayer;
 use eframe::egui;
-
-mod gui_app;
 
 #[tokio::main]
 async fn main() -> eframe::Result {
