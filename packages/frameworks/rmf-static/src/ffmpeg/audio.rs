@@ -89,14 +89,22 @@ impl AudioDataContextBuilder {
 
 #[derive(Clone)]
 pub struct AudioData<T: Clone> {
-    audio_av_frame: AVFrame,
+    data: Vec<Vec<T>>,
     _phantom: PhantomData<T>,
 }
 
 impl<T: Clone> AudioData<T> {
     pub(crate) fn new(audio_av_frame: AVFrame) -> Self {
+        let mut data = Vec::with_capacity(audio_av_frame.ch_layout().nb_channels as _);
+        for i in 0..audio_av_frame.ch_layout().nb_channels as _ {
+            let len = audio_av_frame.linesize[0] as usize;
+            let ch_data = unsafe {
+                Vec::from_raw_parts(*audio_av_frame.extended_data.add(i) as *mut T, len, len)
+            };
+            data.push(ch_data);
+        }
         Self {
-            audio_av_frame,
+            data,
             _phantom: PhantomData::<T>,
         }
     }
@@ -106,17 +114,11 @@ impl<T: Clone> AudioData<T> {
 impl<T: Clone> rmf_core::audio::AudioData for AudioData<T> {
     type Item = T;
     fn channels_len(&self) -> usize {
-        self.audio_av_frame.ch_layout().nb_channels as _
+        self.data.len()
     }
     fn get_channel_line(&self, index: usize) -> Option<&[T]> {
         if index < self.channels_len() {
-            Some(unsafe {
-                let ptr = self.audio_av_frame.extended_data.add(index).read();
-                std::slice::from_raw_parts(
-                    ptr as *const T,
-                    self.audio_av_frame.linesize[0] as usize / size_of::<T>(),
-                )
-            })
+            Some(self.data[index].as_slice())
         } else {
             None
         }
