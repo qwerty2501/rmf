@@ -4,18 +4,32 @@ use rmf_host::{
     audio::{self, Audio, AudioInputService},
     service::{ContentCursorTrait, ContentStreamServiceTrait},
 };
-use std::{collections::VecDeque, path::PathBuf, sync::Arc, time::Duration};
+use std::{
+    collections::VecDeque,
+    path::{Path, PathBuf},
+    sync::Arc,
+    time::Duration,
+};
 use tokio::sync::mpsc::{self, Receiver};
 use tokio::time::{Instant, sleep_until};
 
-#[derive(new)]
-pub struct AudioPlayer {
-    path: PathBuf,
-}
+pub struct AudioPlayer {}
 
 impl AudioPlayer {
-    pub fn play(&self) {
-        decode_audio_loop(self.path.clone());
+    pub async fn play(path: PathBuf) {
+        let (sender, receiver) = mpsc::channel(100);
+        tokio::join!(decode_audio_loop(path, sender), play_audio_loop(receiver));
+    }
+}
+
+async fn play_audio_loop(mut receiver: mpsc::Receiver<Message>) {
+    loop {
+        if let Some(message) = receiver.recv().await {
+            match message {
+                Message::End => break,
+                Message::Received(audio) => {}
+            }
+        }
     }
 }
 
@@ -28,6 +42,7 @@ async fn decode_audio_loop(path: PathBuf, sender: mpsc::Sender<Message>) {
 #[derive(Clone)]
 pub enum Message {
     Received(Arc<Audio>),
+    End,
 }
 
 struct InnerContent {
@@ -82,6 +97,7 @@ async fn inner_decode_loop(path: PathBuf, sender: mpsc::Sender<Message>) -> anyh
             let a = Arc::new(content.audio);
             sender.send(Message::Received(a)).await?;
         } else {
+            sender.send(Message::End).await?;
             break;
         }
     }
