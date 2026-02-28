@@ -1,7 +1,7 @@
 use derive_new::new;
 use rmf_host::{
     Content, InputSource, Timestamp,
-    audio::{self, Audio, AudioInputService},
+    audio::{self, Audio, AudioDataContext, AudioInputService},
     service::{ContentCursorTrait, ContentStreamServiceTrait},
 };
 use std::{
@@ -25,10 +25,16 @@ impl AudioPlayer {
 async fn play_audio_loop(mut receiver: mpsc::Receiver<Message>) {
     loop {
         if let Some(message) = receiver.recv().await {
+            /*
             match message {
                 Message::End => break,
-                Message::Received(audio) => {}
+                Message::Received(audio) => match audio.data() {
+                    AudioDataContext::None => {},
+                    AudioDataContext::U8(data) => data.get_channel_line(index)
+                },
             }
+            */
+            panic!()
         }
     }
 }

@@ -99,4 +99,5 @@ pub trait AudioData: Clone {
     type Item;
     fn get_channel_line(&self, index: usize) -> Option<&[Self::Item]>;
     fn channels_len(&self) -> usize;
+    fn iter(&self) -> impl Iterator<Item = &'_ [Self::Item]>;
 }

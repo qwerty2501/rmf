@@ -1,4 +1,6 @@
+use std::collections::VecDeque;
 use std::marker::PhantomData;
+use std::slice::Iter;
 
 use anyhow::anyhow;
 use rmf_core::{Error, Result};
@@ -110,7 +112,6 @@ impl<T: Clone> AudioData<T> {
     }
 }
 
-#[delegate_implements]
 impl<T: Clone> rmf_core::audio::AudioData for AudioData<T> {
     type Item = T;
     fn channels_len(&self) -> usize {
@@ -122,5 +123,21 @@ impl<T: Clone> rmf_core::audio::AudioData for AudioData<T> {
         } else {
             None
         }
+    }
+    fn iter(&self) -> impl Iterator<Item = &'_ [Self::Item]> {
+        AudioIterator::<'_, T> {
+            iter: self.data.iter(),
+        }
+    }
+}
+
+pub struct AudioIterator<'a, T: Clone> {
+    iter: Iter<'a, Vec<T>>,
+}
+
+impl<'a, T: Clone> Iterator for AudioIterator<'a, T> {
+    type Item = &'a [T];
+    fn next(&mut self) -> Option<Self::Item> {
+        self.iter.next().map(|v| v.as_slice())
     }
 }
