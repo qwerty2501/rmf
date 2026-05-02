@@ -1,7 +1,7 @@
 use std::{
     fmt::Display,
     ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign},
-    time::{Duration, SystemTime},
+    time::Duration,
 };
 
 #[repr(C)]
